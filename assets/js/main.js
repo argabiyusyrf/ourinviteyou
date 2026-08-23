@@ -34,7 +34,8 @@ if (ANIMATE) {
     if (raw && raw.trim()) {
       name = raw.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
     } else {
-      const path = location.pathname.replace(/^\/+|\/+$/g, '');
+      let path = location.pathname.replace(/^\/+|\/+$/g, '');
+      if (path.startsWith('undangan/')) path = path.slice('undangan/'.length);
       if (path && path !== 'manaje.html' && path !== 'undangan') {
         name = decodeURIComponent(path).replace(/[<>]/g, '').replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
       }
