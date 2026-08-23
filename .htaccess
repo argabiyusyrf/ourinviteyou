@@ -9,8 +9,8 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Pretty URL: /nama-tamu -> manaje.html
-RewriteRule ^([^/]+)/?$ manaje.html [L]
+# Pretty URL: /nama-tamu -> index.html (undangan tamu)
+RewriteRule ^([^/]+)/?$ index.html [L]
 
-# Default: serve manaje.html for root
-RewriteRule ^$ manaje.html [L]
+# Default: serve index.html for root
+RewriteRule ^$ index.html [L]
