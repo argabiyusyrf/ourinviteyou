@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id" class="pre-open">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faisal &amp; Detika · Undangan Pernikahan · 11.09.2026</title>
+  <meta name="description" content="Undangan pernikahan digital Faisal & Detika. Jumat, 11 September 2026 di Masjid Baitul Makmur, Nagari Paninjauan, Kabupaten Solok." />
+  <meta name="theme-color" content="#1a0f0d" />
+  <meta property="og:title" content="Faisal & Detika · Undangan Pernikahan" />
+  <meta property="og:description" content="Jumat, 11 September 2026 · Masjid Baitul Makmur, Nagari Paninjauan, Kab. Solok. Buka undangan untuk konfirmasi kehadiran dan kirim doa terbaik Anda." />
+  <meta property="og:type" content="website" />
+
+  <!-- Kustomisasi cepat: nama/tanggal/acara ada di file ini + CONFIG di assets/js/main.js.
+       Foto asli tersimpan di assets/image/; ganti file di sana bila perlu. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='31' fill='%231a0f0d'/%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%239e6b4d' stroke-width='1.5'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-style='italic' fill='%23c08866' text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preload" href="assets/fonts/cormorant-600.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/greatvibes-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <noscript>
+    <style>
+      .cover, #musicToggle { display: none !important; }
+      html.pre-open body { overflow: auto !important; }
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+    </style>
+  </noscript>
+</head>
+<body>
+
+  <canvas id="petals" aria-hidden="true"></canvas>
+  <div id="progressBar" class="progress" aria-hidden="true"></div>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <!-- ============ SAMPUL ============ -->
+  <div id="cover" class="cover" role="dialog" aria-label="Sampul undangan pernikahan">
+    <div class="cover__half cover__half--top" aria-hidden="true">
+      <img class="cover__bg" src="assets/image/foto 2.jpeg" alt="" loading="eager" />
+    </div>
+    <div class="cover__half cover__half--bottom" aria-hidden="true">
+      <img class="cover__bg" src="assets/image/foto 2.jpeg" alt="" loading="eager" />
+    </div>
+    <div class="cover__shadow" aria-hidden="true"></div>
+
+    <div class="cover__frame" aria-hidden="true">
+      <span class="framedot framedot--t"></span>
+      <span class="framedot framedot--b"></span>
+      <span class="corner corner--tl"></span>
+      <span class="corner corner--tr"></span>
+      <span class="corner corner--bl"></span>
+      <span class="corner corner--br"></span>
+    </div>
+
+    <div class="cover__content" id="coverContent">
+      <img class="cover__cardbg" src="assets/image/foto 9.jpeg" alt="" data-cover loading="eager" />
+      <span class="cover__monogram" data-cover aria-hidden="true">F<i>&amp;</i>D</span>
+      <p class="cover__kicker" data-cover>UNDANGAN PERNIKAHAN</p>
+      <p class="script script--gold cover__script" data-cover>The Wedding Of</p>
+      <h1 class="cover__names" data-cover>Ade Faisal<span class="amp">&amp;</span>Detika Aura</h1>
+      <div class="divider" data-cover aria-hidden="true"><i></i><b>&#10022;</b><i></i></div>
+      <p class="cover__date" data-cover>Jumat &#183; 11 September 2026</p>
+
+      <div class="guest-card" data-cover>
+        <p class="guest-card__label">Kepada Yth.</p>
+        <p class="guest-card__sub">Bapak / Ibu / Saudara/i</p>
+        <p class="guest-card__name" id="guestName">Tamu Undangan</p>
+        <p class="guest-card__note">*Mohon maaf apabila ada kesalahan penulisan nama &amp; gelar</p>
+      </div>
+
+      <button type="button" id="openBtn" class="btn btn--gold btn--lg" data-cover>
+        <span>Buka Undangan</span>
+      </button>
+    </div>
+  </div>
+
+  
+  <!-- ============ NAVIGASI BAWAH ============ -->
+  <nav id="dockNav" class="docknav" aria-label="Navigasi undangan" hidden>
+    <a href="#mempelai" class="docknav__link">Pasangan</a>
+    <a href="#acara" class="docknav__link">Acara</a>
+    <a href="#galeri" class="docknav__link">Galeri</a>
+    <a href="#ucapan" class="docknav__link">Ucapan</a>
+    <a href="#kado" class="docknav__link">Kado</a>
+  </nav>
+  
+  <!-- ============ TOMBOL MUSIK ============ -->
+  <button type="button" id="musicToggle" class="music-toggle" aria-label="Putar musik latar" aria-pressed="false" hidden>
+    <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+
+  <!-- ============ TOMBOL KEMBALI KE SAMPUL ============ -->
+  <a href="#beranda" id="homeToggle" class="home-toggle" aria-label="Kembali ke sampul" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 19V6"></path>
+      <path d="M6.5 11.5 12 6l5.5 5.5"></path>
+    </svg>
+  </a>
+
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <header id="beranda" class="hero section">
+      <span class="flourish flourish--tl" aria-hidden="true"></span>
+      <span class="flourish flourish--tr" aria-hidden="true"></span>
+
+      <div class="hero__inner container">
+        <p class="script script--gold hero__script rise-mask"><span class="rise-mask__inner">The Wedding Of</span></p>
+        <div class="hero__emblem" data-hero-emblem aria-hidden="true">
+          <svg viewBox="0 0 120 120" role="img" aria-label="Monogram F dan D">
+            <defs>
+              <linearGradient id="embGold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#c08866"/>
+                <stop offset="1" stop-color="#9e6b4d"/>
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r="55" fill="none" stroke="url(#embGold)" stroke-width="1.1" opacity=".75"/>
+            <circle cx="60" cy="60" r="47" class="emb-ring" fill="none" stroke="url(#embGold)" stroke-width="1" stroke-dasharray="2 5" opacity=".5"/>
+            <path d="M60 15 L66.5 27 L60 21 L53.5 27 Z" fill="url(#embGold)"/>
+            <path d="M60 105 L66.5 93 L60 99 L53.5 93 Z" fill="url(#embGold)"/>
+            <text x="60" y="71" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-size="32" font-weight="600" fill="url(#embGold)">F&amp;D</text>
+          </svg>
+        </div>
+        <h1 class="hero__names">
+          <span class="rise-mask"><span class="rise-mask__inner">Ade Faisal</span></span>
+          <span class="amp amp--hero">&amp;</span>
+          <span class="rise-mask"><span class="rise-mask__inner">Detika Aura</span></span>
+        </h1>
+        <div class="hero__date" data-hero-fade>
+          <span>Jumat</span><b>&#10022;</b><span>11 . 09 . 2026</span><b>&#10022;</b><span>Sulit Air</span>
+        </div>
+
+        <figure class="hero__arch" data-hero-arch>
+          <div class="float-wrap">
+            <div class="arch-frame">
+              <img src="assets/image/foto 1-bersama.jpeg" alt="Suasana lokasi pernikahan di tepi danau saat senja" loading="eager" />
+            </div>
+          </div>
+        </figure>
+
+        <p class="hero__lead container-narrow" data-hero-fade>
+          Dengan penuh sukacita, kami mengundang Anda untuk hadir dan menjadi saksi
+          ikrar cinta kami di hadapan Allah SWT serta keluarga besar.
+        </p>
+      </div>
+
+      <a class="scroll-cue" href="#quote" aria-label="Gulir ke bawah">
+        <span>Gulir</span><i aria-hidden="true"></i>
+      </a>
+    </header>
+
+    <!-- ============ KUTIPAN ============ -->
+    <section id="quote" class="quote section">
+      <div class="container container-narrow center" data-reveal>
+        <div class="divider divider--center" aria-hidden="true"><i></i><b>&#10022;</b><i></i></div>
+        <blockquote class="quote__text">
+          &ldquo;Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.&rdquo;
+        </blockquote>
+        <p class="quote__cite">QS. Ar-Rum : 21</p>
+      </div>
+    </section>
+
+    <!-- ============ MEMPELAI ============ -->
+    <section id="mempelai" class="couple section">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="script script--gold">Mempelai</p>
+          <h2>Dua Hati Menjadi Satu</h2>
+          <p class="section-sub">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.</p>
+        </header>
+
+        <div class="couple__grid" data-reveal-group>
+          <article class="person person--left">
+            <figure class="person__photo arch-frame arch-frame--sm tint">
+              <img src="assets/image/foto 11-faisal.jpg" alt="Foto mempelai pria, Ade Faisal Anugrah" loading="lazy" width="360" height="450" />
+            </figure>
+            <p class="script script--gold person__role">Mempelai Pria</p>
+            <h3 class="person__name">Ade Faisal Anugrah</h3>
+            <p class="person__parents">Putra dari<br />Bapak Hermansyah (Alm.) &amp; Ibu Salfiana</p>
+            <a class="btn btn--ghost btn--sm person__ig" href="https://instagram.com/_faisalanugrah" target="_blank" rel="noopener">@_faisalanugrah</a>
+          </article>
+
+          <div class="couple__amp serif-amp" aria-hidden="true" data-parallax>&amp;</div>
+
+          <article class="person person--right">
+            <figure class="person__photo arch-frame arch-frame--sm tint">
+              <img src="assets/image/foto 11-yaya.jpg" alt="Foto mempelai wanita, Detika Aura Henza" loading="lazy" width="360" height="450" />
+            </figure>
+            <p class="script script--gold person__role">Mempelai Wanita</p>
+            <h3 class="person__name">Detika Aura Henza</h3>
+            <p class="person__parents">Putri dari<br />Bapak Hetno Firmansyah &amp; Ibu Roza Ismail</p>
+            <a class="btn btn--ghost btn--sm person__ig" href="https://instagram.com/dtikaaurahnzaa_" target="_blank" rel="noopener">@dtikaaurahnzaa_</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ACARA ============ -->
+    <section id="acara" class="events section">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <h2>Rangkaian Acara</h2>
+          <p class="section-sub">Merupakan kehormatan bagi kami apabila Anda berkenan menghadiri kedua acara berikut.</p>
+        </header>
+
+        <div class="events__grid">
+          <article class="event event--akad panel" data-reveal>
+            <p class="event__label">
+              <span class="event__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.4a1.6 1.6 0 0 0-1.2-.4H4.82a1.6 1.6 0 0 0-1.2.4 1.6 1.6 0 0 0-.4 1.2v14.4a1.6 1.6 0 0 0 .4 1.2 1.6 1.6 0 0 0 1.2.4h14.76a1.6 1.6 0 0 0 1.2-.4 1.6 1.6 0 0 0 .4-1.2V4.6a1.6 1.6 0 0 0-.4-1.2z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+              </span>
+              Akad Nikah
+            </p>
+            <p class="event__day">Jumat</p>
+            <p class="event__bigdate"><span class="num">11</span><span class="monthyear">September<br />2026</span></p>
+            <p class="event__time">Pukul 08.00 &#8211; 10.00 WIB</p>
+            <div class="event__venue">
+              <p class="event__place">Masjid Baitul Makmur</p>
+              <p class="event__addr">Nagari Paninjauan, Kec. X Koto Diatas,<br />Kab. Solok, Sumatera Barat 27355</p>
+            </div>
+            <div class="event__actions">
+              <a class="btn btn--ghost btn--sm" href="https://maps.app.goo.gl/a9bnQL82pkdSdjWT9" target="_blank" rel="noopener">Lihat Lokasi</a>
+              <a class="btn btn--gold btn--sm" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Akad+Nikah+Faisal+%26+Detika&amp;dates=20260911T080000/20260911T100000&amp;ctz=Asia/Jakarta&amp;location=Masjid+Baitul+Makmur,+Nagari+Paninjauan,+Kec.+X+Koto+Diatas,+Kab.+Solok" target="_blank" rel="noopener">Simpan Kalender</a>
+            </div>
+          </article>
+
+          <article class="event event--offset event--reception panel" data-reveal>
+            <p class="event__label">
+              <span class="event__icon event__icon--reception" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
+              Resepsi
+            </p>
+            <p class="event__day">Minggu</p>
+            <p class="event__bigdate"><span class="num">13</span><span class="monthyear">September<br />2026</span></p>
+            <p class="event__time">Pukul 08.00 &#8211; selesai</p>
+            <div class="event__venue">
+              <p class="event__place">Jorong Taram</p>
+              <p class="event__addr">Nagari Sulit Air, Kec. X Koto Diatas,<br />Kab. Solok, Sumatera Barat 27354</p>
+            </div>
+            <div class="event__actions">
+              <a class="btn btn--ghost btn--sm" href="https://maps.app.goo.gl/aGqqyK3yNkRrLEwP8" target="_blank" rel="noopener">Lihat Lokasi</a>
+              <a class="btn btn--gold btn--sm" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Resepsi+Faisal+%26+Detika&amp;dates=20260913T080000/20260913T160000&amp;ctz=Asia/Jakarta&amp;location=Jorong+Taram,+Nagari+Sulit+Air,+Kec.+X+Koto+Diatas,+Kab.+Solok" target="_blank" rel="noopener">Simpan Kalender</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COUNTDOWN ============ -->
+    <section class="countdown section" aria-label="Hitung mundur menuju hari pernikahan">
+      <div class="container center">
+        <h2 class="countdown__title" data-reveal>Menanti Hari Bahagia</h2>
+        <div class="countdown__grid" id="countdownGrid" data-reveal role="timer" aria-live="off">
+          <div class="countdown__unit"><span class="countdown__num" id="cdDays">00</span><span class="countdown__label">Hari</span></div>
+          <div class="countdown__unit"><span class="countdown__num" id="cdHours">00</span><span class="countdown__label">Jam</span></div>
+          <div class="countdown__unit"><span class="countdown__num" id="cdMinutes">00</span><span class="countdown__label">Menit</span></div>
+          <div class="countdown__unit"><span class="countdown__num" id="cdSeconds">00</span><span class="countdown__label">Detik</span></div>
+        </div>
+        <p class="countdown__done" id="countdownDone" hidden>Hari bahagia telah tiba. Terima kasih atas doa dan restu Anda!</p>
+      </div>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>ADE FAISAL &#10022; DETIKA AURA &#10022; 11 &#183; 09 &#183; 2026 &#10022; ADE FAISAL &#10022; DETIKA AURA &#10022; 11 &#183; 09 &#183; 2026 &#10022;&nbsp;</span>
+        <span>ADE FAISAL &#10022; DETIKA AURA &#10022; 11 &#183; 09 &#183; 2026 &#10022; ADE FAISAL &#10022; DETIKA AURA &#10022; 11 &#183; 09 &#183; 2026 &#10022;&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- ============ PERJALANAN CINTA ============ -->
+    <section id="cerita" class="story section">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <h2>Perjalanan Kami</h2>
+          <p class="section-sub">Setiap babak membawa kami ke hari ini.</p>
+        </header>
+
+        <div class="timeline" id="timeline">
+          <i class="timeline__line" aria-hidden="true"></i>
+
+          <article class="titem titem--left" data-reveal>
+            <span class="titem__dot" aria-hidden="true"></span>
+            <p class="titem__year">Awal 2024</p>
+            <h3 class="titem__title">Titik Pertemuan</h3>
+            <p class="titem__body">Takdir mempertemukan kami di awal tahun 2024. Perkenalan sederhana itu perlahan menumbuhkan rasa yang tak terduga.</p>
+          </article>
+
+          <article class="titem titem--right" data-reveal>
+            <span class="titem__dot" aria-hidden="true"></span>
+            <p class="titem__year">Pertengahan 2024</p>
+            <h3 class="titem__title">Memutuskan Bersama</h3>
+            <p class="titem__body">Setelah saling mengenal lebih dalam, kami sepakat melangkah bersama sebagai pasangan di pertengahan tahun 2024.</p>
+          </article>
+
+          <article class="titem titem--left" data-reveal>
+            <span class="titem__dot" aria-hidden="true"></span>
+            <p class="titem__year">Juli 2026</p>
+            <h3 class="titem__title">Lamaran</h3>
+            <p class="titem__body">Di bulan Juli 2026, restu kedua keluarga menyempurnakan niat kami untuk mengikat janji suci.</p>
+          </article>
+
+          <article class="titem titem--right" data-reveal>
+            <span class="titem__dot" aria-hidden="true"></span>
+            <p class="titem__year">September 2026</p>
+            <h3 class="titem__title">Menuju Pelaminan</h3>
+            <p class="titem__body">Hari bahagia itu tinggal menanti. Kami mengundang Anda menjadi saksi ikrar kami pada 11 dan 13 September 2026.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GALERI ============ -->
+    <section id="galeri" class="gallery section">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <h2>Galeri Momen</h2>
+          <p class="section-sub">Sepotong cerita dalam bingkai. Ketuk foto untuk memperbesar.</p>
+        </header>
+
+        <div class="gallery__grid" id="galleryGrid" data-reveal-group>
+          <figure class="gitem gpos-a" tabindex="0" role="button" aria-label="Perbesar foto: Langkah bersama">
+            <img class="tint" src="assets/image/foto 3.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — langkah bersama" loading="lazy" width="450" height="800" />
+            <figcaption>Langkah bersama</figcaption>
+          </figure>
+          <figure class="gitem gpos-b" tabindex="0" role="button" aria-label="Perbesar foto: Tawa di sela cerita">
+            <img class="tint" src="assets/image/foto 4.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — tawa di sela cerita" loading="lazy" width="450" height="600" />
+            <figcaption>Tawa di sela cerita</figcaption>
+          </figure>
+          <figure class="gitem gpos-c" tabindex="0" role="button" aria-label="Perbesar foto: Genggaman yang tenang">
+            <img class="tint" src="assets/image/foto 5.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — genggaman yang tenang" loading="lazy" width="640" height="360" />
+            <figcaption>Genggaman yang tenang</figcaption>
+          </figure>
+          <figure class="gitem gpos-d" tabindex="0" role="button" aria-label="Perbesar foto: Senja berdua">
+            <img class="tint" src="assets/image/foto 6.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — senja berdua" loading="lazy" width="500" height="500" />
+            <figcaption>Senja berdua</figcaption>
+          </figure>
+          <figure class="gitem gpos-e" tabindex="0" role="button" aria-label="Perbesar foto: Cerita hari ini">
+            <img class="tint" src="assets/image/foto 7.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — cerita hari ini" loading="lazy" width="500" height="500" />
+            <figcaption>Cerita hari ini</figcaption>
+          </figure>
+          <figure class="gitem gpos-f" tabindex="0" role="button" aria-label="Perbesar foto: Menanti hari bahagia">
+            <img class="tint" src="assets/image/foto 8.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — menanti hari bahagia" loading="lazy" width="450" height="600" />
+            <figcaption>Menanti hari bahagia</figcaption>
+          </figure>
+          <figure class="gitem gpos-g" tabindex="0" role="button" aria-label="Perbesar foto: Janji yang kami ucap">
+            <img class="tint" src="assets/image/foto 10.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — janji yang kami ucap" loading="lazy" width="450" height="800" />
+            <figcaption>Janji yang kami ucap</figcaption>
+          </figure>
+          <figure class="gitem gpos-h" tabindex="0" role="button" aria-label="Perbesar foto: Menuju selamanya">
+            <img class="tint" src="assets/image/foto 11.jpeg" alt="Foto pranikah Ade Faisal &amp; Detika — menuju selamanya" loading="lazy" width="450" height="600" />
+            <figcaption>Menuju selamanya</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RSVP & UCAPAN ============ -->
+    <section id="ucapan" class="wishes section">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <h2>Ucapan &amp; Doa</h2>
+          <p class="section-sub">Konfirmasi kehadiran Anda dan tinggalkan doa terbaik untuk kedua mempelai.</p>
+        </header>
+
+        <div class="wishes__grid">
+          <form id="rsvpForm" class="panel rsvp" data-reveal novalidate>
+            <div class="field">
+              <input type="text" id="rsvpName" name="nama" autocomplete="name" placeholder=" " maxlength="60" required />
+              <label for="rsvpName">Nama Lengkap</label>
+              <p class="field__error" id="errName" hidden>Mohon isi nama lengkap Anda.</p>
+            </div>
+
+            <fieldset class="field">
+              <legend>Konfirmasi Kehadiran</legend>
+              <div class="segmented" role="radiogroup" aria-label="Konfirmasi kehadiran">
+                <label class="seg">
+                  <input type="radio" name="hadir" value="hadir" checked />
+                  <span>In syaa Allah Hadir</span>
+                </label>
+                <label class="seg">
+                  <input type="radio" name="hadir" value="berhalangan" />
+                  <span>Berhalangan</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="field" id="guestCountField">
+              <label for="rsvpGuests">Jumlah Tamu</label>
+              <select id="rsvpGuests" name="jumlah">
+                <option value="1">1 orang</option>
+                <option value="2">2 orang</option>
+                <option value="3">3 orang</option>
+                <option value="4">4 orang</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <textarea id="rsvpMsg" name="ucapan" rows="4" placeholder=" " maxlength="500" required></textarea>
+              <label for="rsvpMsg">Ucapan &amp; Doa</label>
+              <p class="field__error" id="errMsg" hidden>Tuliskan ucapan minimal 3 karakter.</p>
+              <p class="field__count" id="msgCount" aria-live="polite">0 / 500</p>
+            </div>
+
+            <button type="submit" class="btn btn--gold btn--block" id="rsvpSubmit"><span>Kirim Ucapan</span></button>
+          </form>
+
+          <div class="wishes__list-col" data-reveal>
+            <div class="wishes__meta" id="wishesMeta" aria-live="polite"></div>
+            <ol class="wishes__list" id="wishesList" aria-label="Daftar ucapan"></ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ KADO / AMPLOP DIGITAL ============ -->
+    <section id="kado" class="gift section">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="script script--gold">Tanda Kasih</p>
+          <h2>Amplop Digital</h2>
+          <p class="section-sub">Doa restu Anda adalah hadiah terindah. Namun apabila berkenan memberikan tanda kasih, kami sediakan beberapa cara berikut.</p>
+        </header>
+
+        <div class="gift__grid" data-reveal-group>
+          <article class="bankcard panel">
+            <p class="bankcard__bank">Bank BCA</p>
+            <p class="bankcard__number" data-copy="8830123456">8830 1234 56</p>
+            <p class="bankcard__holder">a.n. Ade Faisal Anugrah</p>
+            <button type="button" class="btn btn--ghost btn--sm copy-btn" data-copy="8830123456">Salin Nomor</button>
+          </article>
+
+          <article class="bankcard panel">
+            <p class="bankcard__bank">Bank Mandiri</p>
+            <p class="bankcard__number" data-copy="1270009876543">1270 0098 7654 3</p>
+            <p class="bankcard__holder">a.n. Detika Aura Henza</p>
+            <button type="button" class="btn btn--ghost btn--sm copy-btn" data-copy="1270009876543">Salin Nomor</button>
+          </article>
+
+          <article class="bankcard panel">
+            <p class="bankcard__bank">Kirim Hadiah Fisik</p>
+            <p class="bankcard__number bankcard__number--small">Jorong Taram, Nagari Sulit Air<br />Kec. X Koto Diatas, Kab. Solok<br />Sumatera Barat 27354</p>
+            <p class="bankcard__holder">a.n. Detika Aura Henza</p>
+            <button type="button" class="btn btn--ghost btn--sm copy-btn" data-copy="Jorong Taram, Nagari Sulit Air, Kec. X Koto Diatas, Kab. Solok, Sumatera Barat 27354">Salin Alamat</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PENUTUP ============ -->
+    <footer id="penutup" class="closing section">
+      <div class="container container-narrow center" data-reveal>
+        <div class="divider divider--center" aria-hidden="true"><i></i><b>&#10022;</b><i></i></div>
+        <p class="closing__text">
+          Merupakan suatu kehormatan dan kebahagiaan bagi kami sekeluarga apabila
+          Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada kedua mempelai.
+          Atas kehadiran serta doanya, kami ucapkan terima kasih.
+        </p>
+        <p class="closing__sign">Dengan cinta,</p>
+        <p class="script script--gold closing__names">Faisal &amp; Detika</p>
+        <p class="closing__tag">#FaisalDetikaWedding</p>
+        <button type="button" class="btn btn--ghost btn--sm" id="shareBtn">Bagikan Undangan</button>
+        <p class="closing__credit">Undangan Pernikahan Digital &#183; Jumat, 11 September 2026</p>
+        <p class="closing__sigby">Pour l'amour</p>
+        <p class="closing__signature" aria-label="argabiyu"><span aria-hidden="true"><span class="sig-a">A</span><span class="sig-r">r</span><span class="sig-g">g</span><span class="sig-a2">a</span><span class="sig-b">b</span><span class="sig-i">i</span><span class="sig-y">Y</span><span class="sig-u">u</span></span></p>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Pratinjau galeri" hidden>
+    <button type="button" class="lightbox__close" id="lbClose" aria-label="Tutup">&#215;</button>
+    <p class="lightbox__counter" id="lbCounter"></p>
+    <div class="lightbox__toolbar">
+      <button type="button" class="lightbox__tool" id="lbZoomOut" aria-label="Perkecil">&#8722;</button>
+      <button type="button" class="lightbox__tool" id="lbZoomReset" aria-label="Reset zoom">&#8634;</button>
+      <button type="button" class="lightbox__tool" id="lbZoomIn" aria-label="Perbesar">&#43;</button>
+      <button type="button" class="lightbox__tool" id="lbDownload" aria-label="Unduh foto">&#8595;</button>
+      <button type="button" class="lightbox__tool" id="lbShare" aria-label="Bagikan foto">&#8599;</button>
+    </div>
+    <button type="button" class="lightbox__nav lightbox__nav--prev" id="lbPrev" aria-label="Foto sebelumnya">&#8249;</button>
+    <figure class="lightbox__fig">
+      <img id="lbImg" src="" alt="" />
+      <figcaption id="lbCaption"></figcaption>
+    </figure>
+    <button type="button" class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Foto berikutnya">&#8250;</button>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- ============ RSVP CONFIRMATION CARD ============ -->
+  <div id="confirmCard" class="confirm-card" role="dialog" aria-modal="true" aria-label="Kartu konfirmasi RSVP" hidden>
+    <div class="confirm-card__inner" id="confirmCardInner">
+      <div class="confirm-card__frame">
+        <span class="corner corner--tl"></span>
+        <span class="corner corner--tr"></span>
+        <span class="corner corner--bl"></span>
+        <span class="corner corner--br"></span>
+      </div>
+      <p class="script script--gold confirm-card__script">Konfirmasi Kehadiran</p>
+      <h2 class="confirm-card__names" id="confirmNames">Nama Tamu</h2>
+      <div class="divider divider--center" aria-hidden="true"><i></i><b>&#10022;</b><i></i></div>
+      <p class="confirm-card__detail" id="confirmStatus">Hadir</p>
+      <p class="confirm-card__detail" id="confirmGuests">1 orang</p>
+      <p class="confirm-card__date">11 &middot; 09 &middot; 2026</p>
+      <div class="confirm-card__actions">
+        <button type="button" class="btn btn--gold btn--sm" id="saveCardBtn"><span>Simpan sebagai Gambar</span></button>
+        <button type="button" class="btn btn--ghost btn--sm" id="closeCardBtn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/vendor/gsap.min.js"></script>
+  <script src="assets/vendor/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>

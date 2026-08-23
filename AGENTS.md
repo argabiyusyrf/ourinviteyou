@@ -1,0 +1,46 @@
+# AGENTS.md
+
+Static one-page digital wedding invitation (all UI copy Indonesian). No framework, no build step, no package.json, not a git repo. Vanilla JS + locally vendored GSAP/ScrollTrigger.
+
+## Verify / local dev
+- No lint/test/build exists — don't invent npm tasks. Verification = load the page in a browser.
+- Lives under Apache's web root: reachable at `http://localhost/undangan`. Any static file server works too.
+- Check both modes: normal, and reduced-motion / JS disabled (cover must open instantly, all content visible — see the `<noscript>` styles in index.html).
+
+## Customization points
+- The wedding date is hardcoded in MANY places: `CONFIG.dateISO` in `assets/js/main.js` feeds only the countdown; the visible date also lives in index.html title/meta, cover, hero strip, marquee (both spans), event cards, and inside each "Simpan Kalender" Google Calendar URL. Update all of them together.
+- Names, venue, addresses: edit directly in index.html (+ `CONFIG.shareText`).
+- Photos live locally in `assets/image/` — all pre-compressed (longest side ~2000 px, q80, ±2.9 MB total). **Every camera photo is actually PORTRAIT** — originals carry EXIF orientation 8 (foto 8: 6) on landscape-stored pixels, so the web copies are regenerated with `exif_transpose()` applied (upright 1331×2000; hero 1464×2200). Exception: `foto 2.jpeg` (cover bg) is the raw pixels rotated 90° CLOCKWISE then flipped vertically (portrait 1464×2200 — user's explicit manual orientation, NOT the EXIF direction), filling the screen via `object-fit: cover; object-position: center`, graded B&W via CSS filter. Gallery is a hand-composed 12-col × 9-row mosaic (`.gpos-a…gpos-h` explicit placement ≥761px, full coverage, no holes; falls back to 2 cols ≤760px / 1 col ≤480px) using `foto 3,4,5,6,7,8,10,11.jpeg`; hero `foto 1-bersama.jpeg`, cover bg `foto 2.jpeg` + cover card `foto 9.jpeg`, couple cards `foto 11-faisal.jpg` / `foto 11-yaya.jpg`. Captions are force-visible on `(hover:none)` devices. Full-res originals of everything live in `/home/argabiyusyrf/foto-asli-undangan/` (outside webroot — do not deploy). A capture-phase `error` listener swaps any broken image to an inline SVG placeholder.
+- Cover guest name comes from `?to=Nama+Tamu` query param (sanitized, 60-char cap); the share button deliberately strips the query string.
+
+## Gotchas
+- Every animation is gated by `ANIMATE = HAS_GSAP && !REDUCE` in main.js. New animated features must respect this gate; the site must stay fully usable without GSAP or with reduced motion.
+- `html.js [data-reveal] { opacity: 0 }` — reveal targets are hidden by CSS the moment GSAP loads, then revealed by ScrollTrigger. `initScrollFx()` runs exactly once, when the cover opens; DOM added later never animates (and stays invisible if you gave it `data-reveal`).
+- `html.pre-open` locks body scroll until "Buka Undangan" is clicked. Background music intentionally starts inside that click handler (autoplay policy).
+- RSVP/wishes have NO backend: submissions persist to localStorage key `fd-wishes-v1` (renamed from `ran-wishes-v1`, old key abandoned). No fake seed entries — when the list is empty, JS renders a `.wishes__empty` placeholder and hides the meta chips. Don't add fetch calls expecting a server.
+- Fonts are self-hosted woff2 in `assets/fonts`; two are preloaded in index.html — keep preloads in sync if fonts change.
+- GSAP files in `assets/vendor/` are vendored minified copies loaded as plain scripts — don't convert to modules/npm imports.
+- **Color palette**: brown/maroon batik theme (`--bg-0:#1a0f0d`, `--gold:#9e6b4d`, `--gold-bright:#c08866`, etc.). Hardcoded gold/old-green refs were cleaned up in CSS/JS/HTML, but if adding new accents, use the CSS variables — don't hardcode hex.
+- **Gold gradient text**: all `.script--gold` elements use `background-clip:text` gradient. If you add new script headings, include `class="script script--gold"`. Don't add a solid `color` — the gradient handles it.
+- **Cover hero elements** (monogram, rise-mask text, arch, flourishes, scroll-cue, `[data-hero-fade]`) are hidden via `gsap.set()` only inside the ANIMATE branch (now at the top of `initScrollFx()`), then animated by a ScrollTrigger-owned timeline with `toggleActions: 'play none none reverse'` (trigger `#beranda`, start `top 70%`). Don't add `opacity:0` in CSS for these.
+- **Music toggle** sits beside the dock nav (`left:50%; transform:translateX(calc(-50%+236px))`, media query ≤560px moves it above the dock). Not in the corner anymore.
+- **Home toggle** (`#homeToggle`, `<a href="#beranda">` arrow-up) sits right of the music toggle at `translateX(calc(-50%+290px))`; ≤560px it stacks above music (`right:14px; bottom:132px`). Click = smooth scroll to top (native `scrollTo`, works without GSAP). Revealed together with music toggle in `revealControls()`.
+- **Background textures**: cover = one full-screen B&W photo (`foto 2`, landscape) rendered as a `.cover__bg` copy inside EACH gate half (top half anchors top, bottom half anchors bottom, each clipped by `overflow:hidden` → looks continuous; the open animation tears it at the seam), warm dark scrims + faint gold bloom via `.cover::after`. The cover content sits in a framed card whose background is `foto 9.jpeg` (native portrait after EXIF correction, kept in color) with plain `object-fit: cover` under its own scrim (`.cover__content::before`). Hero has one warm radial glow. The arch halo (`.hero__arch::before`) remains.
+- **Animation easings**: custom cubic-bezier `cubic-bezier(.16, 1, .3, 1)` defined as `--ease-out` in CSS; GSAP uses `'expo.out'`, `'power3.out'`, `'back.out(1.7)'`. Avoid `linear`/`ease-in-out`.
+- **GPU-safe**: All animations use `transform`/`opacity` only. `backdrop-filter` only on fixed elements (music toggle, dock nav, cover frame). No blur on scrolling containers.
+
+## 3D motion layer (added 2026-08)
+- **Cover opens as 3D gates**: `.cover` has `perspective:1400px`; halves rotateX ±66° around the seam (`transformOrigin '50% 100%'` top / `'50% 0%'` bottom). No more yPercent slide. The open click timeline no longer contains the hero intro — `finishOpen()` → `initScrollFx()` owns it now.
+- **Cover load-in intro**: corners pop in (`back.out(2.2)`), `[data-cover]` items stagger up. Timeline ref is local `coverIntro`; it's `.kill()`ed at the start of the open click so a fast click never fights it.
+- **Hero intro is scroll-managed**: built as a timeline whose ScrollTrigger uses `toggleActions: 'play none none reverse'`; because it sits at scroll position already past its start, it auto-plays the moment the cover opens. Initial hidden states are re-applied via `gsap.set` inside `initScrollFx`.
+- **Split-char headings**: every `.section-head h2` and `.countdown__title` is split into `.ch` spans by JS (aria-label keeps original text; chars are aria-hidden). Only happens under ANIMATE — text stays plain without GSAP.
+- **3D entrances**: `.panel[data-reveal]` enters rotateX(-15°)→0 with transformPerspective 900; `.titem[data-reveal]` swings in from its side via rotationY; group children alternate rotationY ±10°. All reveals use `toggleActions: 'play none none reverse'` — they **reverse when scrolled back above their start** and replay on re-entry (no `once:true`). Each reveal sets `el.dataset.revealed='1'` onComplete / `'0'` onReverseComplete — **pointer tilt refuses to engage while that flag isn't `'1'`** (prevents fighting the entrance tween).
+- **Pointer tilt**: `.event, .bankcard, .rsvp, .gitem, .person__photo` get quickTo rotationX/Y/scale tilt, only when `(hover:hover) and (pointer:fine)`. Hero arch tilts from pointer position over the whole `.hero`.
+- **Ambient CSS loops**: `.hero__arch .float-wrap` (heroFloat), `.person__photo img` (personFloat), `.emb-ring` dashed circle (ringSpin), `.couple__amp` (pre-existing ampFloat). All killed by the reduced-motion block.
+- **Countdown flip**: digits flip in via rotationX -88°→0 each change (`setCell` in main.js).
+- **Scroll extras**: marquee skew follows scroll velocity (proxy+quickSetter pattern); gold progress bar `#progressBar` scaleX scrub; hero content recedes (`.hero__inner` scale/autoAlpha scrub).
+- **Transform-conflict rule**: never put static transforms in CSS on elements GSAP also tweens — `.event--offset` uses `margin-top`, not `translateY`. Same reason hero arch has three nested layers: figure (GSAP reveal+parallax) > `.float-wrap` (CSS loop) > `.arch-frame` (pointer tilt).
+- **Panel texture**: `.panel::before` adds a static repeating-linear-gradient weave (opacity .05). Decorative only.
+
+## Deploy
+- Goes live via the sibling tool `/var/www/html/deploy.py` (FTP to InfinityFree, run from `/var/www/html`). `undangan` is not yet registered in its `FOLDER_DOMAIN`, so first deploy will prompt for a domain — confirm with the user before wiring that mapping.
