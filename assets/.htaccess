@@ -1,0 +1,16 @@
+Options -Indexes
+
+# Block sensitive files
+<FilesMatch "^(\.htaccess|\.htpasswd|\.git|\.env|composer\.json|package\.json|README\.md|AGENTS\.md|kilo\.json)$">
+    Require all denied
+</FilesMatch>
+
+# Allow only specific asset types
+<FilesMatch "\.(css|js|png|jpe?g|gif|svg|webp|woff2|mp3|wav|ogg|json|txt)$">
+    Require all granted
+</FilesMatch>
+
+# Deny everything else in assets
+<FilesMatch ".*">
+    Require all denied
+</FilesMatch>
