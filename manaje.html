@@ -104,7 +104,7 @@
       container.querySelectorAll('[data-copy-slug]').forEach(btn => {
         btn.addEventListener('click', async () => {
           const slug = btn.getAttribute('data-copy-slug');
-          const url = location.origin + '/' + slug;
+          const url = location.origin + '/undangan/' + slug;
           await navigator.clipboard.writeText(url).catch(() => {});
           toast('Tautan tersalin: ' + url);
         });
@@ -128,7 +128,7 @@
         list.push({ name: raw, slug, t: Date.now() });
         saveGuests(list);
       }
-      const url = location.origin + '/' + slug;
+      const url = location.origin + '/undangan/' + slug;
       $('#linkPreview').textContent = url;
       renderGuests();
       toast('Tautan undangan berhasil dibuat.');
