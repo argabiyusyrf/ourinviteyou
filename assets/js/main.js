@@ -25,6 +25,10 @@ if (ANIMATE) {
 /* ============================================================
     1. NAMA TAMU (?to=Nama+Tamu atau /nama-tamu)
     ============================================================ */
+function capitalizeWords(str) {
+  return str.replace(/\b\w/g, (ch) => ch.toUpperCase());
+}
+
 (function initGuest() {
   const el = $('#guestName');
   if (!el) return;
@@ -32,12 +36,12 @@ if (ANIMATE) {
   try {
     const raw = new URLSearchParams(location.search).get('to');
     if (raw && raw.trim()) {
-      name = raw.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+      name = capitalizeWords(raw.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60));
     } else {
       let path = location.pathname.replace(/^\/+|\/+$/g, '');
       if (path.startsWith('undangan/')) path = path.slice('undangan/'.length);
       if (path && path !== 'manaje.html' && path !== 'undangan') {
-        name = decodeURIComponent(path).replace(/[<>]/g, '').replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+        name = capitalizeWords(decodeURIComponent(path).replace(/[<>]/g, '').replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60));
       }
     }
   } catch (e) { /* abaikan */ }
