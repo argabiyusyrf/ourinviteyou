@@ -17,7 +17,8 @@ Static one-page digital wedding invitation (all UI copy Indonesian). No framewor
 - Every animation is gated by `ANIMATE = HAS_GSAP && !REDUCE` in main.js. New animated features must respect this gate; the site must stay fully usable without GSAP or with reduced motion.
 - `html.js [data-reveal] { opacity: 0 }` — reveal targets are hidden by CSS the moment GSAP loads, then revealed by ScrollTrigger. `initScrollFx()` runs exactly once, when the cover opens; DOM added later never animates (and stays invisible if you gave it `data-reveal`).
 - `html.pre-open` locks body scroll until "Buka Undangan" is clicked. Background music intentionally starts inside that click handler (autoplay policy).
-- RSVP/wishes have NO backend: submissions persist to localStorage key `fd-wishes-v1` (renamed from `ran-wishes-v1`, old key abandoned). No fake seed entries — when the list is empty, JS renders a `.wishes__empty` placeholder and hides the meta chips. Don't add fetch calls expecting a server.
+- RSVP/wishes go through the PHP backend `api.php` (same folder), persisting to `data/undangan.json`. Actions: `?action=list` (GET, public) and POST JSON `create|delete|clear` (require `key` === `ADMIN_KEY`, defined in BOTH api.php and manaje.html — keep in sync) and public `wish` `{slug?,n,a,g,m}`. A wish whose slug matches a registered guest also sets that guest's `hadir`. `data/` + `*.json` are blocked in .htaccess. If fetch fails, main.js falls back to localStorage (`fd-wishes-v1`) and manaje.html shows an offline banner with local-only guests (`fd-guests-v1`). Guests linked via `/slug` get their name prefilled+readonly in the RSVP form (`window.__GUEST_SLUG` from initGuest). No fake seed entries — empty list renders `.wishes__empty`.
+- **Permissions**: `data/` must stay writable by Apache's user (www-data on InfinityFree it is by default). Locally it was created with chmod 777 because www-data can't write into the user-owned webroot dirs.
 - Fonts are self-hosted woff2 in `assets/fonts`; two are preloaded in index.html — keep preloads in sync if fonts change.
 - GSAP files in `assets/vendor/` are vendored minified copies loaded as plain scripts — don't convert to modules/npm imports.
 - **Color palette**: brown/maroon batik theme (`--bg-0:#1a0f0d`, `--gold:#9e6b4d`, `--gold-bright:#c08866`, etc.). Hardcoded gold/old-green refs were cleaned up in CSS/JS/HTML, but if adding new accents, use the CSS variables — don't hardcode hex.
@@ -41,6 +42,10 @@ Static one-page digital wedding invitation (all UI copy Indonesian). No framewor
 - **Scroll extras**: marquee skew follows scroll velocity (proxy+quickSetter pattern); gold progress bar `#progressBar` scaleX scrub; hero content recedes (`.hero__inner` scale/autoAlpha scrub).
 - **Transform-conflict rule**: never put static transforms in CSS on elements GSAP also tweens — `.event--offset` uses `margin-top`, not `translateY`. Same reason hero arch has three nested layers: figure (GSAP reveal+parallax) > `.float-wrap` (CSS loop) > `.arch-frame` (pointer tilt).
 - **Panel texture**: `.panel::before` adds a static repeating-linear-gradient weave (opacity .05). Decorative only.
+
+## Routing (.htaccess)
+- Order matters: (0) block all dotted paths (`RewriteRule (^|/)\. - [F]` — covers `.git/`, whose inner files have no leading dot) → (1) real files/dirs pass through → (2) `^isalyaya/?$` → `manaje.html` BEFORE the catch-all → (3) catch-all `^([^./]+)/?$` → `index.html` (one segment, no dots). No `RewriteBase`, so rules work both at webroot and in a subfolder.
+- Guest names come from the pathname in main.js (`initGuest`): `/arya` → "Arya", dashes/underscores become spaces. `manaje.html` builds links from `BASE` (pathname minus last segment) — never hardcode `/undangan/`.
 
 ## Deploy
 - Goes live via the sibling tool `/var/www/html/deploy.py` (FTP to InfinityFree, run from `/var/www/html`). `undangan` is not yet registered in its `FOLDER_DOMAIN`, so first deploy will prompt for a domain — confirm with the user before wiring that mapping.

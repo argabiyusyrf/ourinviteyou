@@ -31,8 +31,8 @@ function capitalizeWords(str) {
 
 (function initGuest() {
   const el = $('#guestName');
-  if (!el) return;
   let name = 'Tamu Undangan';
+  let slug = null;
   try {
     const raw = new URLSearchParams(location.search).get('to');
     if (raw && raw.trim()) {
@@ -41,11 +41,23 @@ function capitalizeWords(str) {
       let path = location.pathname.replace(/^\/+|\/+$/g, '');
       if (path.startsWith('undangan/')) path = path.slice('undangan/'.length);
       if (path && path !== 'manaje.html' && path !== 'undangan') {
-        name = capitalizeWords(decodeURIComponent(path).replace(/[<>]/g, '').replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60));
+        const decoded = decodeURIComponent(path);
+        slug = decoded.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || null;
+        name = capitalizeWords(decoded.replace(/[<>]/g, '').replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60));
       }
     }
   } catch (e) { /* abaikan */ }
-  el.textContent = name;
+  window.__GUEST_SLUG = slug;
+  if (el) el.textContent = name;
+
+  /* Tamu dari tautan pribadi: nama terkunci di form RSVP */
+  const nf = $('#rsvpName');
+  if (nf && slug && !nf.value) {
+    nf.value = name;
+    nf.readOnly = true;
+    const hint = $('#rsvpNameHint');
+    if (hint) hint.hidden = false;
+  }
 })();
 
 /* ============================================================
@@ -743,6 +755,7 @@ function initTilt() {
     ============================================================ */
 (function initWishes() {
   const KEY = 'fd-wishes-v1';
+  const API = 'api.php'; /* backend PHP — fallback localStorage bila tidak aktif */
   const listEl = $('#wishesList');
   const metaEl = $('#wishesMeta');
   const form = $('#rsvpForm');
@@ -897,13 +910,44 @@ function initTilt() {
     render(wishes, true);
 
     confettiBurst($('#rsvpSubmit'));
+
+    /* kirim ke backend (fire-and-forget); lokal sudah tersimpan sebagai cadangan */
+    fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'wish',
+        slug: window.__GUEST_SLUG || '',
+        n: name.value.trim(),
+        a: hadir,
+        g: hadir === 'hadir' ? guests : 0,
+        m: msg.value.trim(),
+      }),
+    }).then((r) => r.json()).then((res) => {
+      if (!res || !res.ok) Toast.show('Tersimpan di perangkat ini, namun gagal terkirim ke server.');
+    }).catch(() => {
+      Toast.show('Tersimpan di perangkat ini, namun server tidak dapat dihubungi.');
+    });
+
     Toast.show('Terima kasih! Ucapan dan doa Anda telah terkirim.');
     msg.value = '';
 
     showConfirmCard(name.value.trim(), hadir, hadir === 'hadir' ? guests : 0);
   });
 
-  render(load(), false);
+  /* muat ucapan: coba backend dulu, jatuh ke localStorage bila gagal */
+  (async () => {
+    render(load(), false);
+    try {
+      const res = await fetch(API + '?action=list', { headers: { Accept: 'application/json' } });
+      const data = await res.json();
+      if (data && data.ok && Array.isArray(data.wishes)) {
+        const wishes = data.wishes.slice().sort((x, y) => y.t - x.t);
+        save(wishes);
+        render(wishes, false);
+      }
+    } catch (e) { /* backend tidak aktif — pakai cache lokal */ }
+  })();
 })();
 
 /* ============================================================

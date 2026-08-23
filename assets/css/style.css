@@ -1082,6 +1082,7 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
 }
 .field select option { background: #10281a; color: var(--ivory); }
 .field__error { font-size: .76rem; color: var(--error); margin-top: 7px; }
+.field__hint { font-size: .76rem; color: var(--muted); margin-top: 7px; }
 .field.has-error input, .field.has-error textarea { border-color: rgba(224, 161, 132, .65); }
 .field__count {
   font-size: .72rem; color: var(--muted); text-align: right; margin-top: 6px;

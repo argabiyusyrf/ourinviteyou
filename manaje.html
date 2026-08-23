@@ -14,6 +14,12 @@
     .admin__header { text-align: center; margin-bottom: 40px; }
     .admin__header h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--ivory); }
     .admin__header p { color: var(--muted); margin-top: 8px; }
+    .admin__offline { display: none; max-width: 1000px; margin: 0 auto 20px; padding: 12px 18px; border: 1px solid rgba(192, 88, 66, .45); background: rgba(120, 40, 28, .25); border-radius: 12px; color: #f2c9bd; font-size: .85rem; text-align: center; }
+    .admin__offline.is-show { display: block; }
+    .admin__stats { max-width: 1000px; margin: 0 auto 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+    .stat { background: linear-gradient(160deg, #3d2318 0%, #1f110c 60%, #1a0f0d 100%); border: 1px solid rgba(158, 107, 77, .2); border-radius: 16px; padding: 16px 18px; text-align: center; }
+    .stat b { display: block; font-size: 1.9rem; font-family: var(--serif); font-weight: 600; color: var(--gold-bright); line-height: 1.15; }
+    .stat span { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
     .admin__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 20px; max-width: 1000px; margin-inline: auto; }
     .admin__card { background: linear-gradient(160deg, #3d2318 0%, #1f110c 60%, #1a0f0d 100%); border: 1px solid rgba(158, 107, 77, .2); border-radius: 20px; padding: 24px; }
     .admin__card h3 { font-family: var(--serif); font-weight: 600; font-size: 1.1rem; color: var(--ivory); margin-bottom: 12px; }
@@ -22,15 +28,22 @@
     .admin__field input { width: 100%; padding: 10px 14px; background: rgba(243, 239, 228, .05); border: 1px solid rgba(158, 107, 77, .24); border-radius: 12px; color: var(--ivory); font-family: var(--sans); font-size: .9rem; }
     .admin__field input:focus { outline: none; border-color: rgba(158, 107, 77, .7); box-shadow: 0 0 0 3px rgba(158, 107, 77, .13); }
     .admin__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-    .admin__list { max-height: 420px; overflow-y: auto; margin-top: 16px; }
-    .admin__item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(233, 227, 208, .08); }
+    .admin__list { max-height: 480px; overflow-y: auto; margin-top: 16px; }
+    .admin__item { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 12px; border-bottom: 1px solid rgba(233, 227, 208, .08); }
     .admin__item:last-child { border-bottom: 0; }
     .admin__item-info { min-width: 0; }
     .admin__item-name { font-size: .88rem; font-weight: 500; color: var(--ivory); overflow-wrap: anywhere; }
     .admin__item-meta { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+    .admin__badges { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; }
+    .badge { font-size: .68rem; font-weight: 500; letter-spacing: .04em; padding: 3px 10px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+    .badge--hadir { background: rgba(64, 122, 84, .22); border-color: rgba(96, 176, 124, .5); color: #a9dfbe; }
+    .badge--tidak { background: rgba(150, 62, 48, .2); border-color: rgba(202, 96, 76, .5); color: #eab3a4; }
+    .badge--belum { background: rgba(243, 239, 228, .06); border-color: rgba(233, 227, 208, .18); color: var(--muted); }
+    .badge--ucapan { background: rgba(158, 107, 77, .18); border-color: rgba(192, 136, 102, .5); color: var(--gold-bright); }
     .admin__empty { text-align: center; color: var(--muted); padding: 32px 16px; font-size: .9rem; }
-    .admin__toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16, 40, 27, .96); border: 1px solid rgba(158, 107, 77, .4); color: var(--ivory); padding: 12px 24px; border-radius: 999px; font-size: .85rem; opacity: 0; transition: opacity .35s, transform .35s; pointer-events: none; z-index: 90; }
+    .admin__toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16, 40, 27, .96); border: 1px solid rgba(158, 107, 77, .4); color: var(--ivory); padding: 12px 24px; border-radius: 999px; font-size: .85rem; opacity: 0; transition: opacity .35s, transform .35s; pointer-events: none; z-index: 90; max-width: min(92vw, 560px); text-align: center; }
     .admin__toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (prefers-reduced-motion: reduce) { .admin__toast { transition: none; } }
   </style>
 </head>
 <body>
@@ -38,8 +51,21 @@
     <div class="container">
       <header class="admin__header">
         <h1>Manajemen Undangan</h1>
-        <p>Buat tautan undangan dan kelola daftar tamu.</p>
+        <p>Buat tautan undangan dan pantau konfirmasi serta ucapan tamu.</p>
       </header>
+
+      <div class="admin__offline" id="offlineNote">
+        Backend tidak aktif — menampilkan data lokal peramban saja. Pastikan <code>api.php</code> dapat dijalankan di server ini.
+      </div>
+
+      <div class="admin__stats" id="statsWrap" hidden>
+        <div class="stat"><b id="stTotal">0</b><span>Total Tamu</span></div>
+        <div class="stat"><b id="stHadir">0</b><span>Konfirmasi Hadir</span></div>
+        <div class="stat"><b id="stTidak">0</b><span>Berhalangan</span></div>
+        <div class="stat"><b id="stBelum">0</b><span>Belum Konfirmasi</span></div>
+        <div class="stat"><b id="stUcapan">0</b><span>Ucapan Masuk</span></div>
+        <div class="stat"><b id="stOrang">0</b><span>Estimasi Hadir</span></div>
+      </div>
 
       <div class="admin__grid">
         <section class="admin__card">
@@ -58,7 +84,7 @@
         <section class="admin__card">
           <h3>Daftar Tamu</h3>
           <div class="admin__list" id="guestList">
-            <p class="admin__empty">Belum ada tamu. Buat tautan undangan terlebih dahulu.</p>
+            <p class="admin__empty">Memuat…</p>
           </div>
           <div class="admin__actions">
             <button type="button" class="btn btn--ghost btn--sm" id="exportBtn">Ekspor JSON</button>
@@ -72,93 +98,210 @@
   <div class="admin__toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
-    const GUEST_KEY = 'fd-guests-v1';
+    const GUEST_KEY = 'fd-guests-v1'; /* fallback lama */
+    const API = 'api.php';
+    const ADMIN_KEY = 'isalyaya-2026-fd';
     const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    /* Dasar URL link tamu: otomatis mengikuti lokasi panel.
+       /undangan/isalyaya -> '/undangan/' ; /isalyaya -> '/' */
+    const BASE = location.pathname.replace(/\/+$/, '').replace(/[^/]*$/, '') || '/';
 
-    function toast(msg, ms = 2400) {
+    let DATA = { guests: [], wishes: [] };
+    let OFFLINE = false;
+
+    function toast(msg, ms = 2600) {
       const el = $('#toast');
       el.textContent = msg;
       el.classList.add('is-show');
-      setTimeout(() => el.classList.remove('is-show'), ms);
-    }
-
-    function loadGuests() {
-      try { return JSON.parse(localStorage.getItem(GUEST_KEY) || '[]'); } catch (e) { return []; }
-    }
-    function saveGuests(list) { localStorage.setItem(GUEST_KEY, JSON.stringify(list)); }
-
-    function renderGuests() {
-      const list = loadGuests();
-      const container = $('#guestList');
-      if (!list.length) { container.innerHTML = '<p class="admin__empty">Belum ada tamu. Buat tautan undangan terlebih dahulu.</p>'; return; }
-      container.innerHTML = list.map((g, i) => `
-        <div class="admin__item">
-          <div class="admin__item-info">
-            <div class="admin__item-name">${escapeHtml(g.name)}</div>
-            <div class="admin__item-meta">${g.slug} · ${new Date(g.t).toLocaleString('id-ID')}</div>
-          </div>
-          <button class="btn btn--ghost btn--sm" data-copy-slug="${escapeHtml(g.slug)}">Salin</button>
-        </div>
-      `).join('');
-      container.querySelectorAll('[data-copy-slug]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const slug = btn.getAttribute('data-copy-slug');
-          const url = location.origin + '/undangan/' + slug;
-          await navigator.clipboard.writeText(url).catch(() => {});
-          toast('Tautan tersalin: ' + url);
-        });
-      });
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove('is-show'), ms);
     }
 
     function escapeHtml(str) {
       return str.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
     }
 
+    function guestUrl(slug) {
+      return location.origin + BASE + slug;
+    }
+
+    async function apiGet() {
+      const res = await fetch(API + '?action=list', { headers: { Accept: 'application/json' } });
+      const data = await res.json();
+      if (!data || !data.ok) throw new Error('respon tidak valid');
+      return data;
+    }
+
+    async function apiPost(payload) {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({ key: ADMIN_KEY }, payload)),
+      });
+      const data = await res.json().catch(() => null);
+      if (!data || !data.ok) throw new Error((data && data.error) || 'permintaan gagal');
+      return data;
+    }
+
+    function setOffline(state) {
+      OFFLINE = state;
+      $('#offlineNote').classList.toggle('is-show', state);
+    }
+
+    function renderStats() {
+      const gs = DATA.guests, ws = DATA.wishes;
+      const hadir = gs.filter((g) => g.hadir === 'hadir');
+      $('#statsWrap').hidden = false;
+      $('#stTotal').textContent = gs.length;
+      $('#stHadir').textContent = hadir.length;
+      $('#stTidak').textContent = gs.filter((g) => g.hadir === 'tidak').length;
+      $('#stBelum').textContent = gs.filter((g) => !g.hadir).length;
+      $('#stUcapan').textContent = ws.length;
+      $('#stOrang').textContent = hadir.reduce((s, g) => {
+        const w = ws.filter((x) => x.slug === g.slug).sort((a, b) => b.t - a.t)[0];
+        return s + Math.max(1, (w && w.g) || 1);
+      }, 0);
+    }
+
+    function renderGuests() {
+      const container = $('#guestList');
+      if (!DATA.guests.length) {
+        container.innerHTML = '<p class="admin__empty">' +
+          (OFFLINE ? 'Backend tidak aktif dan belum ada data lokal.' : 'Belum ada tamu. Buat tautan undangan terlebih dahulu.') +
+          '</p>';
+        return;
+      }
+      container.innerHTML = DATA.guests.map((g) => {
+        const sudah = DATA.wishes.some((w) => w.slug === g.slug);
+        const bHadir = g.hadir === 'hadir'
+          ? '<span class="badge badge--hadir">✓ Hadir</span>'
+          : g.hadir === 'tidak'
+            ? '<span class="badge badge--tidak">Berhalangan</span>'
+            : '<span class="badge badge--belum">Belum Konfirmasi</span>';
+        const bUcapan = sudah ? '<span class="badge badge--ucapan">Ucapan Masuk</span>' : '';
+        return `
+        <div class="admin__item">
+          <div class="admin__item-info">
+            <div class="admin__item-name">${escapeHtml(g.name)}</div>
+            <div class="admin__item-meta">${escapeHtml(g.slug)} · ${new Date(g.t).toLocaleString('id-ID')}</div>
+            <div class="admin__badges">${bHadir}${bUcapan}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+            <button class="btn btn--ghost btn--sm" data-copy-slug="${escapeHtml(g.slug)}">Salin Tautan</button>
+            <button class="btn btn--ghost btn--sm" data-del-slug="${escapeHtml(g.slug)}" style="color:#eab3a4;">Hapus</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      container.querySelectorAll('[data-copy-slug]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const url = guestUrl(btn.getAttribute('data-copy-slug'));
+          try { await navigator.clipboard.writeText(url); toast('Tautan tersalin: ' + url); }
+          catch (e) { toast(url, 5000); }
+        });
+      });
+      container.querySelectorAll('[data-del-slug]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const slug = btn.getAttribute('data-del-slug');
+          if (!confirm('Hapus tamu "' + slug + '"?')) return;
+          if (OFFLINE) {
+            saveGuests(loadGuests().filter((g) => g.slug !== slug));
+            DATA.guests = loadGuests();
+            renderAll();
+            toast('Tamu dihapus (lokal).');
+            return;
+          }
+          try {
+            await apiPost({ action: 'delete', slug });
+            toast('Tamu dihapus.');
+            await refresh();
+          } catch (e) { toast('Gagal menghapus: ' + e.message); }
+        });
+      });
+    }
+
+    function renderAll() { renderStats(); renderGuests(); }
+
+    async function refresh() {
+      try {
+        const d = await apiGet();
+        DATA = { guests: d.guests || [], wishes: d.wishes || [] };
+        setOffline(false);
+      } catch (e) {
+        setOffline(true);
+        DATA = { guests: loadGuests(), wishes: [] };
+      }
+      renderAll();
+    }
+
     function toSlug(str) {
       return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     }
 
-    $('#generateBtn').addEventListener('click', () => {
+    /* fallback penyimpanan lokal (bila backend mati) */
+    function loadGuests() {
+      try { return JSON.parse(localStorage.getItem(GUEST_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveGuests(list) { localStorage.setItem(GUEST_KEY, JSON.stringify(list)); }
+
+    $('#generateBtn').addEventListener('click', async () => {
       const raw = $('#guestNameInput').value.trim();
       if (!raw) { toast('Isi nama tamu dulu.'); return; }
       const slug = toSlug(raw);
-      const list = loadGuests();
-      if (!list.find((g) => g.slug === slug)) {
-        list.push({ name: raw, slug, t: Date.now() });
+      if (!slug) { toast('Nama tidak bisa dijadikan tautan.'); return; }
+      const url = guestUrl(slug);
+
+      if (OFFLINE) {
+        const list = loadGuests();
+        if (!list.find((g) => g.slug === slug)) list.push({ name: raw, slug, t: Date.now() });
         saveGuests(list);
+        DATA.guests = list;
+        $('#linkPreview').textContent = url;
+        renderAll();
+        toast('Tautan dibuat (mode lokal).');
+        return;
       }
-      const url = location.origin + '/undangan/' + slug;
-      $('#linkPreview').textContent = url;
-      renderGuests();
-      toast('Tautan undangan berhasil dibuat.');
+
+      try {
+        await apiPost({ action: 'create', name: raw });
+        $('#linkPreview').textContent = url;
+        $('#guestNameInput').value = '';
+        toast('Tautan undangan berhasil dibuat.');
+        await refresh();
+      } catch (e) {
+        toast(e.message === 'tamu dengan nama itu sudah ada'
+          ? 'Tamu dengan nama itu sudah terdaftar.'
+          : 'Gagal membuat tautan: ' + e.message);
+      }
     });
 
     $('#copyBtn').addEventListener('click', async () => {
       const text = $('#linkPreview').textContent.trim();
       if (!text) { toast('Buat tautan terlebih dahulu.'); return; }
-      await navigator.clipboard.writeText(text).catch(() => {});
-      toast('Tautan tersalin.');
+      try { await navigator.clipboard.writeText(text); toast('Tautan tersalin.'); }
+      catch (e) { toast(text, 5000); }
     });
 
     $('#exportBtn').addEventListener('click', () => {
-      const list = loadGuests();
-      const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'daftar-tamu-undangan.json';
+      a.download = 'undangan-data.json';
       a.click();
-      toast('Daftar tamu diekspor.');
+      URL.revokeObjectURL(a.href);
     });
 
-    $('#clearBtn').addEventListener('click', () => {
-      if (!confirm('Hapus semua data tamu?')) return;
-      localStorage.removeItem(GUEST_KEY);
-      renderGuests();
-      toast('Data tamu dihapus.');
+    $('#clearBtn').addEventListener('click', async () => {
+      if (!confirm('Hapus SEMUA tamu? Data ucapan tetap tersimpan.')) return;
+      if (OFFLINE) { saveGuests([]); DATA.guests = []; renderAll(); toast('Daftar lokal dikosongkan.'); return; }
+      try {
+        await apiPost({ action: 'clear' });
+        toast('Daftar tamu dikosongkan.');
+        await refresh();
+      } catch (e) { toast('Gagal: ' + e.message); }
     });
 
-    renderGuests();
+    refresh();
   </script>
 </body>
 </html>

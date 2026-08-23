@@ -1,16 +1,36 @@
-RewriteEngine On
-RewriteBase /
+# ============================================================
+# Undangan Pernikahan — Faisal & Detika
+#
+#   /isalyaya      -> panel manajemen (manaje.html)
+#   /nama-tamu     -> undangan tamu (index.html), contoh: /arya /ratih
+#
+# Catatan: tanpa RewriteBase agar aturan tetap sah baik saat
+# situs ada di webroot MAUPUN di subfolder (mis. /undangan/).
+# Nama tamu dibaca oleh main.js dari pathname (dash -> spasi).
+# ============================================================
 
-# Don't rewrite existing files or directories
+RewriteEngine On
+
+# -- 0) Blokir semua path bertitik (.git/, .htaccess, dsb.)
+RewriteRule (^|/)\. - [F]
+
+# -- 0b) Data privat backend tidak boleh diakses langsung
+RewriteRule ^data/ - [F]
+
+# -- 1) File/folder yang benar-benar ada -> dilayani apa adanya
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Management panel (secret path) - MUST be BEFORE pretty URL catch-all
+# -- 2) Panel manajemen (path rahasia) — HARUS sebelum catch-all
 RewriteRule ^isalyaya/?$ manaje.html [L]
 
-# Pretty URL: /nama-tamu -> index.html (undangan tamu)
-RewriteRule ^([^/]+)/?$ index.html [L]
+# -- 3) Link cantik tamu: SATU segmen tanpa titik -> index.html
+#    /arya -> index.html ; /ratih -> index.html ; dst.
+RewriteRule ^([^./]+)/?$ index.html [L]
 
-# Default: serve index.html for root
-RewriteRule ^$ index.html [L]
+# -- 4) Kebersihan & keamanan
+Options -Indexes
+<FilesMatch "(^\.|\.(md|log|ini|sh|json|tmp)$)">
+  Require all denied
+</FilesMatch>
