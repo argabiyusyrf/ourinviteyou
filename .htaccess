@@ -9,6 +9,9 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+# Management panel (secret path)
+RewriteRule ^isalyaya/?$ manaje.html [L]
+
 # Pretty URL: /nama-tamu -> index.html (undangan tamu)
 RewriteRule ^([^/]+)/?$ index.html [L]
 
