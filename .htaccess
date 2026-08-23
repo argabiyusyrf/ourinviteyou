@@ -1,12 +1,12 @@
 RewriteEngine On
-RewriteBase /undangan/
+RewriteBase /
 
 # Don't rewrite existing files or directories
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Management panel (secret path) - must be BEFORE pretty URL catch-all
+# Management panel (secret path) - MUST be BEFORE pretty URL catch-all
 RewriteRule ^isalyaya/?$ manaje.html [L]
 
 # Pretty URL: /nama-tamu -> index.html (undangan tamu)
