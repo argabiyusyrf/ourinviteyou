@@ -1005,27 +1005,30 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
   .gitem figcaption { opacity: 1; transform: translateY(0); }
 }
 
-/* komposisi desktop: mozaik 12 kolom x 9 baris, penuh tanpa lubang */
+/* komposisi desktop: mozaik lanskap 12 kolom x 9 baris, penuh tanpa lubang */
 @media (min-width: 761px) {
   .gallery__grid {
     grid-template-columns: repeat(12, 1fr);
-    grid-auto-rows: clamp(80px, 8.5vw, 125px);
+    grid-auto-rows: clamp(70px, 7.6vw, 112px);
     gap: 14px;
   }
-  .gpos-a { grid-column: 1 / span 4; grid-row: 1 / span 5; }  /* 9:16 tinggi  */
-  .gpos-b { grid-column: 5 / span 4; grid-row: 3 / span 3; }  /* 3:4 potret   */
-  .gpos-c { grid-column: 5 / span 8; grid-row: 1 / span 2; }  /* sinematik    */
-  .gpos-d { grid-column: 9 / span 4; grid-row: 3 / span 2; }  /* lanskap kecil*/
-  .gpos-e { grid-column: 9 / span 4; grid-row: 5 / span 2; }  /* lanskap kecil*/
-  .gpos-f { grid-column: 5 / span 4; grid-row: 6 / span 4; }  /* 3:4 potret   */
-  .gpos-g { grid-column: 1 / span 4; grid-row: 6 / span 4; }  /* 3:4 potret   */
-  .gpos-h { grid-column: 9 / span 4; grid-row: 7 / span 3; }  /* 3:4 penutup  */
+  .gpos-a { grid-column: 1 / 7;  grid-row: 1 / 4; } /* 6x3 sinematik */
+  .gpos-b { grid-column: 7 / 13; grid-row: 1 / 4; } /* 6x3 sinematik */
+  .gpos-c { grid-column: 1 / 8;  grid-row: 4 / 7; } /* 7x3 lebar     */
+  .gpos-d { grid-column: 8 / 13; grid-row: 4 / 6; } /* 5x2 panorama  */
+  .gpos-e { grid-column: 8 / 13; grid-row: 6 / 8; } /* 5x2 panorama  */
+  .gpos-f { grid-column: 1 / 5;  grid-row: 7 / 10; } /* 4x3 lanskap  */
+  .gpos-g { grid-column: 5 / 8;  grid-row: 7 / 9; } /* 3x2 lanskap  */
+  .gpos-h { grid-column: 5 / 13; grid-row: 8 / 10; } /* 8x2 panorama  */
+  .gpos-d img { object-position: 50% 30%; }
+  .gpos-e img { object-position: 50% 70%; }
+  .gpos-g img { object-position: 50% 40%; }
 }
 
 @media (max-width: 760px) {
   .gallery__grid {
     grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: clamp(120px, 32vw, 175px);
+    grid-auto-rows: auto;
     grid-auto-flow: row;
     gap: 10px;
   }
@@ -1033,6 +1036,8 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
     grid-column: auto;
     grid-row: auto;
   }
+  .gitem { aspect-ratio: 4 / 3; }
+  .gpos-a, .gpos-c, .gpos-e, .gpos-g { aspect-ratio: 3 / 2; }
 }
 
 /* ---------- rsvp & ucapan ---------- */
@@ -1435,6 +1440,7 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
   .cover__kicker { font-size: 10px; letter-spacing: .15em; }
 
   .gallery__grid { grid-template-columns: 1fr; }
+  .gallery__grid .gitem { aspect-ratio: 16 / 9; }
   .gpos-c { grid-column: auto; }
 }
 
