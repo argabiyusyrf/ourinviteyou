@@ -1187,6 +1187,11 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
   from { opacity: 0; transform: translateY(-12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.wishes__more {
+  list-style: none;
+  display: flex; justify-content: center;
+  padding: 18px 0 4px;
+}
 
 @media (max-width: 900px) {
   .wishes__grid { grid-template-columns: 1fr; }
@@ -1214,6 +1219,17 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
 .bankcard__number--small {
   font-family: var(--sans); font-weight: 300;
   font-size: .95rem; letter-spacing: .02em; line-height: 1.9;
+}
+/* nomor/alamat kado bisa diketuk untuk menyalin */
+.bankcard__number[data-copy] {
+  cursor: pointer;
+  transition: color .25s var(--ease-out);
+}
+.bankcard__number[data-copy]:hover { color: var(--gold-bright); }
+.bankcard__number[data-copy]:focus-visible {
+  outline: 2px solid rgba(227, 200, 136, .85);
+  outline-offset: 4px;
+  border-radius: 6px;
 }
 .bankcard__holder { font-size: .82rem; color: var(--muted); margin-bottom: 20px; }
 
@@ -1293,6 +1309,8 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
   transition: transform .55s var(--ease-out);
 }
 .lightbox.is-open .lightbox__fig img { transform: none; }
+/* izinkan gerakan sentuh: geser horizontal utk navigasi, vertikal utk tutup/zoom */
+.lightbox__fig, .lightbox__fig img { touch-action: pan-y pinch-zoom; }
 .lightbox__fig figcaption { margin-top: 16px; font-size: .84rem; letter-spacing: .14em; color: var(--cream); }
 .lightbox__close {
   position: fixed; top: 14px; right: 20px;

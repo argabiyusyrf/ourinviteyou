@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manajemen Undangan · Faisal & Detika</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Manajemen Undangan · Faisal &amp; Detika</title>
   <meta name="theme-color" content="#1a0f0d" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='31' fill='%231a0f0d'/%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%239e6b4d' stroke-width='1.5'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-style='italic' fill='%23c08866' text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E" />
   <link rel="preload" href="assets/fonts/cormorant-600.woff2" as="font" type="font/woff2" crossorigin />
@@ -14,6 +15,8 @@
     .admin__header { text-align: center; margin-bottom: 40px; }
     .admin__header h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.8rem, 4vw, 2.4rem); color: var(--ivory); }
     .admin__header p { color: var(--muted); margin-top: 8px; }
+    .admin__logout { margin-top: 14px; }
+    .admin__header .btn { margin: 0 5px; vertical-align: middle; }
     .admin__offline { display: none; max-width: 1000px; margin: 0 auto 20px; padding: 12px 18px; border: 1px solid rgba(192, 88, 66, .45); background: rgba(120, 40, 28, .25); border-radius: 12px; color: #f2c9bd; font-size: .85rem; text-align: center; }
     .admin__offline.is-show { display: block; }
     .admin__stats { max-width: 1000px; margin: 0 auto 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
@@ -25,8 +28,9 @@
     .admin__card h3 { font-family: var(--serif); font-weight: 600; font-size: 1.1rem; color: var(--ivory); margin-bottom: 12px; }
     .admin__field { margin-bottom: 14px; }
     .admin__field label { display: block; font-size: 10.5px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--cream); margin-bottom: 8px; }
-    .admin__field input { width: 100%; padding: 10px 14px; background: rgba(243, 239, 228, .05); border: 1px solid rgba(158, 107, 77, .24); border-radius: 12px; color: var(--ivory); font-family: var(--sans); font-size: .9rem; }
-    .admin__field input:focus { outline: none; border-color: rgba(158, 107, 77, .7); box-shadow: 0 0 0 3px rgba(158, 107, 77, .13); }
+    .admin__field input, .admin__field textarea { width: 100%; padding: 10px 14px; background: rgba(243, 239, 228, .05); border: 1px solid rgba(158, 107, 77, .24); border-radius: 12px; color: var(--ivory); font-family: var(--sans); font-size: .9rem; }
+    .admin__field input:focus, .admin__field textarea:focus { outline: none; border-color: rgba(158, 107, 77, .7); box-shadow: 0 0 0 3px rgba(158, 107, 77, .13); }
+    .admin__field textarea { resize: vertical; min-height: 130px; line-height: 1.7; }
     .admin__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
     .admin__list { max-height: 480px; overflow-y: auto; margin-top: 16px; }
     .admin__item { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 13px 12px; border-bottom: 1px solid rgba(233, 227, 208, .08); }
@@ -41,6 +45,13 @@
     .badge--belum { background: rgba(243, 239, 228, .06); border-color: rgba(233, 227, 208, .18); color: var(--muted); }
     .badge--ucapan { background: rgba(158, 107, 77, .18); border-color: rgba(192, 136, 102, .5); color: var(--gold-bright); }
     .admin__empty { text-align: center; color: var(--muted); padding: 32px 16px; font-size: .9rem; }
+    .wishes-read__msg { font-size: .84rem; line-height: 1.7; color: var(--cream); margin-top: 6px; overflow-wrap: anywhere; white-space: pre-wrap; }
+    /* gerbang login */
+    .login-wrap { max-width: 380px; margin: 6vh auto 0; }
+    .login-wrap .admin__card { padding: 30px 26px; }
+    .login-wrap h3 { text-align: center; }
+    .login-note { font-size: .78rem; color: var(--muted); margin-top: 14px; text-align: center; line-height: 1.6; }
+    [hidden] { display: none !important; }
     .admin__toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(16, 40, 27, .96); border: 1px solid rgba(158, 107, 77, .4); color: var(--ivory); padding: 12px 24px; border-radius: 999px; font-size: .85rem; opacity: 0; transition: opacity .35s, transform .35s; pointer-events: none; z-index: 90; max-width: min(92vw, 560px); text-align: center; }
     .admin__toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); }
     @media (prefers-reduced-motion: reduce) { .admin__toast { transition: none; } }
@@ -49,48 +60,113 @@
 <body>
   <main class="admin">
     <div class="container">
-      <header class="admin__header">
-        <h1>Manajemen Undangan</h1>
-        <p>Buat tautan undangan dan pantau konfirmasi serta ucapan tamu.</p>
-      </header>
 
-      <div class="admin__offline" id="offlineNote">
-        Backend tidak aktif — menampilkan data lokal peramban saja. Pastikan <code>api.php</code> dapat dijalankan di server ini.
+      <!-- ===== GERBANG LOGIN (kunci hanya diverifikasi di server) ===== -->
+      <div class="login-wrap" id="authGate" hidden>
+        <section class="admin__card">
+          <h3>Masuk Panel</h3>
+          <form id="loginForm" novalidate>
+            <div class="admin__field">
+              <label for="adminKeyInput">Kunci Panel</label>
+              <input type="password" id="adminKeyInput" autocomplete="current-password" maxlength="100" required />
+            </div>
+            <div class="admin__actions">
+              <button type="submit" class="btn btn--gold btn--sm" id="loginBtn"><span>Masuk</span></button>
+              <button type="button" class="btn btn--ghost btn--sm" id="loginBackBtn"><span>&#8592; Kembali</span></button>
+            </div>
+          </form>
+          <p class="login-note">Kunci panel hanya diperiksa di sisi server dan tidak tersimpan di peramban.</p>
+        </section>
       </div>
 
-      <div class="admin__stats" id="statsWrap" hidden>
-        <div class="stat"><b id="stTotal">0</b><span>Total Tamu</span></div>
-        <div class="stat"><b id="stHadir">0</b><span>Konfirmasi Hadir</span></div>
-        <div class="stat"><b id="stTidak">0</b><span>Berhalangan</span></div>
-        <div class="stat"><b id="stBelum">0</b><span>Belum Konfirmasi</span></div>
-        <div class="stat"><b id="stUcapan">0</b><span>Ucapan Masuk</span></div>
-        <div class="stat"><b id="stOrang">0</b><span>Estimasi Hadir</span></div>
-      </div>
+      <!-- ===== ISI PANEL ===== -->
+      <div id="adminWrap" hidden>
+        <header class="admin__header">
+          <h1>Manajemen Undangan</h1>
+          <p>Buat tautan undangan dan pantau konfirmasi serta ucapan tamu.</p>
+          <button type="button" class="btn btn--ghost btn--sm" id="backBtn"><span>&#8592; Kembali ke Undangan</span></button>
+          <button type="button" class="btn btn--ghost btn--sm admin__logout" id="logoutBtn">Keluar</button>
+        </header>
 
-      <div class="admin__grid">
-        <section class="admin__card">
-          <h3>Buat Tautan Undangan</h3>
-          <div class="admin__field">
-            <label for="guestNameInput">Nama Tamu</label>
-            <input type="text" id="guestNameInput" placeholder="Contoh: Arga Abiyyu" maxlength="60" />
-          </div>
-          <div class="admin__actions">
-            <button type="button" class="btn btn--gold btn--sm" id="generateBtn"><span>Buat Tautan</span></button>
-            <button type="button" class="btn btn--ghost btn--sm" id="copyBtn">Salin Tautan</button>
-          </div>
-          <p class="admin__field" style="margin-top:14px;font-size:.82rem;color:var(--muted);word-break:break-all;" id="linkPreview"></p>
-        </section>
+        <div class="admin__offline" id="offlineNote">
+          Backend tidak aktif — menampilkan data lokal peramban saja. Pastikan <code>api.php</code> dapat dijalankan di server ini.
+        </div>
 
-        <section class="admin__card">
-          <h3>Daftar Tamu</h3>
-          <div class="admin__list" id="guestList">
-            <p class="admin__empty">Memuat…</p>
-          </div>
-          <div class="admin__actions">
-            <button type="button" class="btn btn--ghost btn--sm" id="exportBtn">Ekspor JSON</button>
-            <button type="button" class="btn btn--ghost btn--sm" id="clearBtn">Hapus Semua</button>
-          </div>
-        </section>
+        <div class="admin__stats" id="statsWrap" hidden>
+          <div class="stat"><b id="stTotal">0</b><span>Total Tamu</span></div>
+          <div class="stat"><b id="stHadir">0</b><span>Konfirmasi Hadir</span></div>
+          <div class="stat"><b id="stTidak">0</b><span>Berhalangan</span></div>
+          <div class="stat"><b id="stBelum">0</b><span>Belum Konfirmasi</span></div>
+          <div class="stat"><b id="stUcapan">0</b><span>Ucapan Masuk</span></div>
+          <div class="stat"><b id="stOrang">0</b><span>Estimasi Hadir</span></div>
+        </div>
+
+        <div class="admin__grid">
+          <section class="admin__card">
+            <h3>Buat Tautan Undangan</h3>
+            <div class="admin__field">
+              <label for="guestNameInput">Nama Tamu</label>
+              <input type="text" id="guestNameInput" placeholder="Contoh: Arga Abiyyu" maxlength="60" />
+            </div>
+            <div class="admin__actions">
+              <button type="button" class="btn btn--gold btn--sm" id="generateBtn"><span>Buat Tautan</span></button>
+              <button type="button" class="btn btn--ghost btn--sm" id="copyBtn">Salin Tautan</button>
+            </div>
+            <p class="admin__field" style="margin-top:14px;font-size:.82rem;color:var(--muted);word-break:break-all;" id="linkPreview"></p>
+          </section>
+
+          <section class="admin__card">
+            <h3>Import Tamu Massal</h3>
+            <div class="admin__field">
+              <label for="bulkNames">Satu baris = satu nama</label>
+              <textarea id="bulkNames" placeholder="Arga Abiyyu&#10;Ratih Kumalasari&#10;Keluarga Besar H. Mahmud" maxlength="40000"></textarea>
+            </div>
+            <div class="admin__actions">
+              <button type="button" class="btn btn--gold btn--sm" id="bulkBtn"><span>Impor Sekaligus</span></button>
+            </div>
+            <p class="admin__field" style="margin-top:12px;font-size:.78rem;color:var(--muted);">
+              Nama yang sudah terdaftar akan dilewati otomatis. Maksimal 1000 nama sekali impor.
+            </p>
+          </section>
+
+          <section class="admin__card">
+            <h3>Ubah Kunci Panel</h3>
+            <div class="admin__field">
+              <label for="oldKeyInput">Kunci Saat Ini</label>
+              <input type="password" id="oldKeyInput" autocomplete="current-password" maxlength="100" />
+            </div>
+            <div class="admin__field">
+              <label for="newKeyInput">Kunci Baru (min. 6 karakter)</label>
+              <input type="password" id="newKeyInput" autocomplete="new-password" maxlength="100" />
+            </div>
+            <div class="admin__actions">
+              <button type="button" class="btn btn--gold btn--sm" id="changeKeyBtn"><span>Ubah Kunci</span></button>
+            </div>
+          </section>
+
+          <section class="admin__card">
+            <h3>Daftar Tamu</h3>
+            <div class="admin__list" id="guestList">
+              <p class="admin__empty">Memuat…</p>
+            </div>
+            <div class="admin__actions">
+              <button type="button" class="btn btn--ghost btn--sm" id="refreshBtn">Muat Ulang</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="csvGuestsBtn">Ekspor CSV Tamu</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="exportBtn">Ekspor JSON</button>
+              <button type="button" class="btn btn--ghost btn--sm" id="clearBtn">Hapus Semua</button>
+            </div>
+          </section>
+
+          <section class="admin__card">
+            <h3>Ucapan &amp; Kehadiran</h3>
+            <div class="admin__list" id="wishList">
+              <p class="admin__empty">Memuat…</p>
+            </div>
+            <div class="admin__actions">
+              <button type="button" class="btn btn--ghost btn--sm" id="csvWishesBtn">Ekspor CSV Ucapan</button>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </main>
@@ -100,7 +176,6 @@
   <script>
     const GUEST_KEY = 'fd-guests-v1'; /* fallback lama */
     const API = 'api.php';
-    const ADMIN_KEY = 'isalyaya-2026-fd';
     const $ = (sel) => document.querySelector(sel);
     /* Dasar URL link tamu: otomatis mengikuti lokasi panel.
        /undangan/isalyaya -> '/undangan/' ; /isalyaya -> '/' */
@@ -136,17 +211,41 @@
       const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ key: ADMIN_KEY }, payload)),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => null);
-      if (!data || !data.ok) throw new Error((data && data.error) || 'permintaan gagal');
+      if (!data || !data.ok) {
+        const err = new Error((data && data.error) || 'permintaan gagal');
+        err.code = res.status;
+        /* sesi kedaluwarsa/dicabut -> kembali ke gerbang login */
+        if (res.status === 403 && !OFFLINE) showGate();
+        throw err;
+      }
       return data;
     }
 
     function setOffline(state) {
       OFFLINE = state;
       $('#offlineNote').classList.toggle('is-show', state);
+      $('#logoutBtn').hidden = state;
     }
+
+    function showGate() {
+      $('#authGate').hidden = false;
+      $('#adminWrap').hidden = true;
+      const inp = $('#adminKeyInput');
+      inp.value = '';
+      setTimeout(() => inp.focus(), 50);
+    }
+
+    function showAdmin() {
+      $('#authGate').hidden = true;
+      $('#adminWrap').hidden = false;
+    }
+
+    function fmtTime(t) { return new Date(t).toLocaleString('id-ID'); }
+
+    /* ---------- statistik ---------- */
 
     function renderStats() {
       const gs = DATA.guests, ws = DATA.wishes;
@@ -163,11 +262,13 @@
       }, 0);
     }
 
+    /* ---------- daftar tamu ---------- */
+
     function renderGuests() {
       const container = $('#guestList');
       if (!DATA.guests.length) {
         container.innerHTML = '<p class="admin__empty">' +
-          (OFFLINE ? 'Backend tidak aktif dan belum ada data lokal.' : 'Belum ada tamu. Buat tautan undangan terlebih dahulu.') +
+          (OFFLINE ? 'Backend tidak aktif dan belum ada data lokal.' : 'Belum ada tamu. Buat tautan undangan atau impor massal.') +
           '</p>';
         return;
       }
@@ -183,7 +284,7 @@
         <div class="admin__item">
           <div class="admin__item-info">
             <div class="admin__item-name">${escapeHtml(g.name)}</div>
-            <div class="admin__item-meta">${escapeHtml(g.slug)} · ${new Date(g.t).toLocaleString('id-ID')}</div>
+            <div class="admin__item-meta">${escapeHtml(g.slug)} · ${fmtTime(g.t)}</div>
             <div class="admin__badges">${bHadir}${bUcapan}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
@@ -220,7 +321,36 @@
       });
     }
 
-    function renderAll() { renderStats(); renderGuests(); }
+    /* ---------- pembaca isi ucapan ---------- */
+
+    function renderWishes() {
+      const container = $('#wishList');
+      const ws = DATA.wishes.slice().sort((a, b) => b.t - a.t);
+      if (!ws.length) {
+        container.innerHTML = '<p class="admin__empty">Belum ada ucapan masuk.</p>';
+        return;
+      }
+      container.innerHTML = ws.map((w) => {
+        const bStatus = w.a === 'hadir'
+          ? '<span class="badge badge--hadir">✓ Hadir' + (w.g ? ' · ' + w.g + ' org' : '') + '</span>'
+          : '<span class="badge badge--tidak">Berhalangan</span>';
+        const bSlug = w.slug ? '<span class="badge badge--ucapan">via /' + escapeHtml(w.slug) + '</span>' : '<span class="badge badge--belum">tanpa tautan</span>';
+        const pesan = (w.m || '').trim()
+          ? '<p class="wishes-read__msg">' + escapeHtml(w.m) + '</p>'
+          : '<p class="wishes-read__msg" style="color:var(--muted);font-style:italic;">— tanpa ucapan —</p>';
+        return `
+        <div class="admin__item">
+          <div class="admin__item-info">
+            <div class="admin__item-name">${escapeHtml(w.n)}</div>
+            <div class="admin__item-meta">${fmtTime(w.t)}</div>
+            <div class="admin__badges">${bStatus}${bSlug}</div>
+            ${pesan}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderAll() { renderStats(); renderGuests(); renderWishes(); }
 
     async function refresh() {
       try {
@@ -243,6 +373,101 @@
       try { return JSON.parse(localStorage.getItem(GUEST_KEY) || '[]'); } catch (e) { return []; }
     }
     function saveGuests(list) { localStorage.setItem(GUEST_KEY, JSON.stringify(list)); }
+
+    /* ---------- ekspor CSV (pemisah ; + BOM agar rapi di Excel) ---------- */
+
+    function csvCell(v) {
+      const s = String(v == null ? '' : v);
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    function downloadCsv(filename, header, rows) {
+      const lines = [header.map(csvCell)].concat(rows.map((r) => r.map(csvCell)));
+      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    $('#csvGuestsBtn').addEventListener('click', () => {
+      if (!DATA.guests.length) { toast('Belum ada tamu untuk diekspor.'); return; }
+      const rows = DATA.guests.map((g) => {
+        const w = DATA.wishes.filter((x) => x.slug === g.slug).sort((a, b) => b.t - a.t)[0];
+        const status = g.hadir === 'hadir' ? 'Hadir' : g.hadir === 'tidak' ? 'Berhalangan' : 'Belum Konfirmasi';
+        return [g.name, g.slug, guestUrl(g.slug), status, w ? w.g || '' : '', fmtTime(g.t)];
+      });
+      downloadCsv('tamu-undangan.csv', ['Nama', 'Slug', 'Tautan', 'Konfirmasi', 'Estimasi Hadir', 'Dibuat'], rows);
+      toast('CSV tamu diunduh.');
+    });
+
+    $('#csvWishesBtn').addEventListener('click', () => {
+      if (!DATA.wishes.length) { toast('Belum ada ucapan untuk diekspor.'); return; }
+      const rows = DATA.wishes.slice().sort((a, b) => b.t - a.t).map((w) => [
+        w.n,
+        w.a === 'hadir' ? 'Hadir' : 'Berhalangan',
+        w.a === 'hadir' ? (w.g || 1) : 0,
+        w.m || '',
+        fmtTime(w.t),
+        w.slug ? '/' + w.slug : '',
+      ]);
+      downloadCsv('ucapan-undangan.csv', ['Nama', 'Status', 'Jumlah', 'Ucapan', 'Waktu', 'Via Tautan'], rows);
+      toast('CSV ucapan diunduh.');
+    });
+
+    /* ---------- login / logout ---------- */
+
+    $('#loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = $('#adminKeyInput').value;
+      if (!key) { toast('Isi kunci panel dulu.'); return; }
+      const btn = $('#loginBtn');
+      btn.disabled = true;
+      try {
+        await apiPost({ action: 'login', key });
+        showAdmin();
+        setOffline(false);
+        await refresh();
+        toast('Selamat datang!');
+      } catch (err) {
+        toast(err.message === 'kunci tidak sah' ? 'Kunci salah.' :
+              err.code === 429 ? err.message : 'Gagal masuk: ' + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    $('#logoutBtn').addEventListener('click', async () => {
+      try { await apiPost({ action: 'logout' }); } catch (e) { /* abaikan */ }
+      location.reload();
+    });
+
+    /* tombol kembali ke undangan (root lokasi panel) */
+    function goBack() { location.href = BASE; }
+    $('#backBtn').addEventListener('click', goBack);
+    $('#loginBackBtn').addEventListener('click', goBack);
+
+    /* ubah kunci panel (hash tersimpan di data/key.json, terlindung dari web) */
+    $('#changeKeyBtn').addEventListener('click', async () => {
+      const oldK = $('#oldKeyInput').value;
+      const newK = $('#newKeyInput').value;
+      if (!oldK || !newK) { toast('Isi kunci lama dan kunci baru.'); return; }
+      if (newK.length < 6) { toast('Kunci baru minimal 6 karakter.'); return; }
+      const btn = $('#changeKeyBtn');
+      btn.disabled = true;
+      try {
+        await apiPost({ action: 'change_key', old: oldK, new: newK });
+        $('#oldKeyInput').value = '';
+        $('#newKeyInput').value = '';
+        toast('Kunci panel berhasil diubah.');
+      } catch (e) {
+        toast(e.message === 'kunci lama tidak cocok' ? 'Kunci lama salah.' : 'Gagal mengubah kunci: ' + e.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    /* ---------- buat tautan tunggal ---------- */
 
     $('#generateBtn').addEventListener('click', async () => {
       const raw = $('#guestNameInput').value.trim();
@@ -275,11 +500,63 @@
       }
     });
 
+    /* ---------- impor massal ---------- */
+
+    $('#bulkBtn').addEventListener('click', async () => {
+      const names = $('#bulkNames').value.split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!names.length) { toast('Tempel dulu daftar nama, satu baris satu nama.'); return; }
+      if (names.length > 1000) { toast('Maksimal 1000 nama sekali impor.'); return; }
+
+      const btn = $('#bulkBtn');
+      btn.disabled = true;
+
+      if (OFFLINE) {
+        const list = loadGuests();
+        let made = 0;
+        names.forEach((raw) => {
+          const slug = toSlug(raw.toLowerCase());
+          if (slug && !list.find((g) => g.slug === slug)) {
+            list.push({ name: raw, slug, t: Date.now() });
+            made++;
+          }
+        });
+        saveGuests(list);
+        DATA.guests = list;
+        renderAll();
+        btn.disabled = false;
+        $('#bulkNames').value = '';
+        toast(made + ' tautan dibuat (mode lokal).');
+        return;
+      }
+
+      try {
+        const res = await apiPost({ action: 'create_many', names });
+        $('#bulkNames').value = '';
+        const skipped = (res.skipped || []).length;
+        toast(res.created.length + ' tautan dibuat' + (skipped ? ', ' + skipped + ' dilewati (kosong/duplikat).' : '.'));
+        await refresh();
+      } catch (e) {
+        toast('Impor gagal: ' + e.message);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
     $('#copyBtn').addEventListener('click', async () => {
       const text = $('#linkPreview').textContent.trim();
       if (!text) { toast('Buat tautan terlebih dahulu.'); return; }
       try { await navigator.clipboard.writeText(text); toast('Tautan tersalin.'); }
       catch (e) { toast(text, 5000); }
+    });
+
+    $('#refreshBtn').addEventListener('click', async () => {
+      const btn = $('#refreshBtn');
+      btn.disabled = true;
+      await refresh();
+      btn.disabled = false;
+      toast(OFFLINE ? 'Server tidak dapat dihubungi.' : 'Data terbaru dimuat.');
     });
 
     $('#exportBtn').addEventListener('click', () => {
@@ -301,7 +578,28 @@
       } catch (e) { toast('Gagal: ' + e.message); }
     });
 
-    refresh();
+    /* ---------- boot: cek sesi dulu, baru muat data ---------- */
+
+    (async () => {
+      try {
+        const res = await fetch(API + '?action=me', { headers: { Accept: 'application/json' } });
+        const me = await res.json();
+        if (me && me.ok && me.admin) {
+          showAdmin();
+          await refresh();
+        } else if (me && me.ok) {
+          showGate();
+        } else {
+          showGate();
+        }
+      } catch (e) {
+        /* backend mati: mode lokal tanpa login */
+        setOffline(true);
+        showAdmin();
+        DATA = { guests: loadGuests(), wishes: [] };
+        renderAll();
+      }
+    })();
   </script>
 </body>
 </html>

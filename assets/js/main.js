@@ -164,8 +164,11 @@ $('#musicToggle').addEventListener('click', Music.toggle);
   };
   const grid = $('#countdownGrid');
   const done = $('#countdownDone');
+  const title = $('.countdown__title');
   const target = new Date(CONFIG.dateISO).getTime();
   const pad = (n) => String(n).padStart(2, '0');
+
+  let timer = null;
 
   function setCell(el, val) {
     if (!el || el.textContent === val) return;
@@ -177,12 +180,22 @@ $('#musicToggle').addEventListener('click', Music.toggle);
     }
   }
 
+  function markDone() {
+    grid.hidden = true;
+    done.hidden = false;
+    /* judul ikut berganti agar tidak kontras dengan kondisi "sudah lewat" */
+    if (title && !title.dataset.done) {
+      title.dataset.done = '1';
+      title.textContent = 'Hari Bahagia Telah Tiba';
+      title.setAttribute('aria-label', 'Hari Bahagia Telah Tiba');
+    }
+    if (timer) clearInterval(timer);
+  }
+
   function tick() {
     const diff = target - Date.now();
     if (diff <= 0) {
-      grid.hidden = true;
-      done.hidden = false;
-      clearInterval(timer);
+      markDone();
       return;
     }
     const sec = Math.floor(diff / 1000);
@@ -192,7 +205,7 @@ $('#musicToggle').addEventListener('click', Music.toggle);
     setCell(els.s, pad(sec % 60));
   }
 
-  const timer = setInterval(tick, 1000);
+  timer = setInterval(tick, 1000);
   tick();
 })();
 
@@ -748,6 +761,28 @@ function initTilt() {
       setZoom(zoom + (e.deltaY < 0 ? .15 : -.15));
     }
   }, { passive: false });
+
+  /* navigasi geser di layar sentuh (nonaktif saat foto di-zoom);
+     usap ke bawah menutup lightbox */
+  let tsX = 0, tsY = 0, swiping = false;
+  box.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) { swiping = false; return; }
+    tsX = e.touches[0].clientX;
+    tsY = e.touches[0].clientY;
+    swiping = zoom === 1;
+  }, { passive: true });
+  box.addEventListener('touchend', (e) => {
+    if (!swiping || box.hidden) return;
+    swiping = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - tsX;
+    const dy = t.clientY - tsY;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      step(dx < 0 ? 1 : -1);
+    } else if (dy > 90 && Math.abs(dx) < 60) {
+      close();
+    }
+  }, { passive: true });
 })();
 
 /* ============================================================
@@ -755,7 +790,11 @@ function initTilt() {
     ============================================================ */
 (function initWishes() {
   const KEY = 'fd-wishes-v1';
-  const API = 'api.php'; /* backend PHP — fallback localStorage bila tidak aktif */
+  /* Root aplikasi diturunkan dari lokasi main.js — aman untuk semua bentuk URL:
+     /undangan/arya, /undangan, /arya (webroot), maupun ?to=Nama */
+  const mainScript = document.querySelector('script[src*="main.js"]');
+  const APP_ROOT = mainScript ? new URL('.', mainScript.src).href : new URL('.', location.href).href;
+  const API = APP_ROOT + 'api.php'; /* backend PHP — fallback localStorage bila tidak aktif */
   const listEl = $('#wishesList');
   const metaEl = $('#wishesMeta');
   const form = $('#rsvpForm');
@@ -794,11 +833,16 @@ function initTilt() {
     return span;
   }
 
-  function render(wishes, highlightFirst) {
-    listEl.textContent = '';
-    metaEl.hidden = wishes.length === 0;
+  const PAGE_SIZE = 15; /* tampilkan bertahap — tombol "muat lagi" di bawah daftar */
+  let shownCount = PAGE_SIZE;
+  let currentWishes = [];
 
-    if (wishes.length === 0) {
+  function buildList(highlightFirst) {
+    listEl.textContent = '';
+    const total = currentWishes.length;
+
+    if (total === 0) {
+      metaEl.hidden = true;
       const empty = document.createElement('li');
       empty.className = 'wishes__empty';
       empty.textContent = 'Belum ada ucapan & doa. Jadilah yang pertama memberikan restu untuk kedua mempelai.';
@@ -806,7 +850,7 @@ function initTilt() {
       return;
     }
 
-    wishes.slice(0, 50).forEach((w, i) => {
+    currentWishes.slice(0, shownCount).forEach((w, i) => {
       const li = document.createElement('li');
       li.className = 'wish' + (highlightFirst && i === 0 ? ' is-new' : '');
 
@@ -829,22 +873,25 @@ function initTilt() {
       const tm = document.createElement('time');
       tm.className = 'wish__time';
       tm.textContent = relTime(w.t);
-
       head.appendChild(tm);
 
-      const msg = document.createElement('p');
-      msg.className = 'wish__msg';
-      msg.textContent = w.m;
-
       body.appendChild(head);
-      body.appendChild(msg);
+
+      /* ucapan kini opsional — tanpa teks cukup tampil sebagai konfirmasi */
+      if ((w.m || '').trim()) {
+        const msg = document.createElement('p');
+        msg.className = 'wish__msg';
+        msg.textContent = w.m;
+        body.appendChild(msg);
+      }
+
       li.appendChild(av);
       li.appendChild(body);
       listEl.appendChild(li);
     });
 
-    const total = wishes.length;
-    const hadir = wishes.filter((w) => w.a === 'hadir').length;
+    const hadir = currentWishes.filter((w) => w.a === 'hadir').length;
+    metaEl.hidden = false;
     metaEl.textContent = '';
     const c1 = document.createElement('span');
     c1.className = 'chip';
@@ -854,6 +901,29 @@ function initTilt() {
     c2.innerHTML = '<b>' + hadir + '</b> akan hadir';
     metaEl.appendChild(c1);
     metaEl.appendChild(c2);
+
+    const rest = total - Math.min(shownCount, total);
+    if (rest > 0) {
+      const moreLi = document.createElement('li');
+      moreLi.className = 'wishes__more';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn--ghost btn--sm';
+      btn.textContent = 'Muat Ucapan Lainnya (' + rest + ')';
+      btn.addEventListener('click', () => {
+        shownCount += PAGE_SIZE;
+        buildList(false);
+      });
+      moreLi.appendChild(btn);
+      listEl.appendChild(moreLi);
+    }
+  }
+
+  function render(wishes, highlightFirst) {
+    currentWishes = wishes;
+    /* jumlah tampilan dipertahankan bila tamu sudah memperluas daftar */
+    if (shownCount < PAGE_SIZE) shownCount = PAGE_SIZE;
+    buildList(highlightFirst);
   }
 
   /* jumlah tamu hanya relevan bila hadir */
@@ -889,21 +959,23 @@ function initTilt() {
     const hadir = form.querySelector('input[name="hadir"]:checked').value;
     const guests = parseInt($('#rsvpGuests').value, 10);
 
+    /* ucapan opsional — cukup nama untuk konfirmasi kehadiran */
     const badName = name.value.trim().length < 2;
-    const badMsg = msg.value.trim().length < 3;
     setError('rsvpName', 'errName', badName);
-    setError('rsvpMsg', 'errMsg', badMsg);
-    if (badName || badMsg) {
-      Toast.show('Lengkapi dulu nama dan ucapan Anda.');
+    if (badName) {
+      Toast.show('Isi dulu nama lengkap Anda.');
+      name.focus();
       return;
     }
+
+    const text = msg.value.trim();
 
     const wishes = load();
     wishes.unshift({
       n: name.value.trim(),
       a: hadir,
       g: hadir === 'hadir' ? guests : 0,
-      m: msg.value.trim(),
+      m: text,
       t: Date.now(),
     });
     save(wishes);
@@ -921,7 +993,7 @@ function initTilt() {
         n: name.value.trim(),
         a: hadir,
         g: hadir === 'hadir' ? guests : 0,
-        m: msg.value.trim(),
+        m: text,
       }),
     }).then((r) => r.json()).then((res) => {
       if (!res || !res.ok) Toast.show('Tersimpan di perangkat ini, namun gagal terkirim ke server.');
@@ -929,7 +1001,9 @@ function initTilt() {
       Toast.show('Tersimpan di perangkat ini, namun server tidak dapat dihubungi.');
     });
 
-    Toast.show('Terima kasih! Ucapan dan doa Anda telah terkirim.');
+    Toast.show(text
+      ? 'Terima kasih! Ucapan dan doa Anda telah terkirim.'
+      : 'Terima kasih! Konfirmasi kehadiran Anda tercatat.');
     msg.value = '';
 
     showConfirmCard(name.value.trim(), hadir, hadir === 'hadir' ? guests : 0);
@@ -1059,7 +1133,17 @@ function confettiBurst(origin) {
     }
   }
 
-  $$('.copy-btn').forEach((btn) => {
+  /* tombol salin + nomor rekening/alamat yang bisa diketuk langsung */
+  $$('.copy-btn, .bankcard__number[data-copy]').forEach((btn) => {
+    if (btn.classList.contains('bankcard__number')) {
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('tabindex', '0');
+      btn.setAttribute('aria-label',
+        btn.classList.contains('bankcard__number--small') ? 'Salin alamat pengiriman hadiah' : 'Salin nomor rekening');
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+      });
+    }
     btn.addEventListener('click', async () => {
       const text = btn.getAttribute('data-copy') || '';
       const ok = await copyText(text);

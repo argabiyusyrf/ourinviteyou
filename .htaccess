@@ -29,8 +29,19 @@ RewriteRule ^isalyaya/?$ manaje.html [L]
 #    /arya -> index.html ; /ratih -> index.html ; dst.
 RewriteRule ^([^./]+)/?$ index.html [L]
 
-# -- 4) Kebersihan & keamanan
+# -- 4) Sisa path tak dikenal -> halaman 404 ber-branding
+RewriteRule ^ 404.php [L]
+
+# -- 5) Kebersihan & keamanan
 Options -Indexes
+
+# Halaman HTML tidak di-cache browser agar edit langsung terlihat
+<IfModule mod_headers.c>
+  <FilesMatch "\.html?$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
 <FilesMatch "(^\.|\.(md|log|ini|sh|json|tmp)$)">
   Require all denied
 </FilesMatch>
