@@ -415,6 +415,7 @@ body::after {
 
 .cover__monogram {
   position: relative;
+  text-decoration: none;
   display: grid; place-items: center;
   width: clamp(58px, 9.5vh, 76px); aspect-ratio: 1;
   border: 1px solid rgba(192, 136, 102, .7); border-radius: 50%;

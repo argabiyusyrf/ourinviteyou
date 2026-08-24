@@ -790,10 +790,10 @@ function initTilt() {
     ============================================================ */
 (function initWishes() {
   const KEY = 'fd-wishes-v1';
-  /* Root aplikasi diturunkan dari lokasi main.js — aman untuk semua bentuk URL:
-     /undangan/arya, /undangan, /arya (webroot), maupun ?to=Nama */
-  const mainScript = document.querySelector('script[src*="main.js"]');
-  const APP_ROOT = mainScript ? new URL('.', mainScript.src).href : new URL('.', location.href).href;
+  /* Root aplikasi = direktori halaman (tempat index.html & api.php berada),
+     bukan direktori script — agar api.php selalu di-root aplikasi baik di
+     /undangan, webroot, maupun path tamu /arya. */
+  const APP_ROOT = new URL('.', location.href).href;
   const API = APP_ROOT + 'api.php'; /* backend PHP — fallback localStorage bila tidak aktif */
   const listEl = $('#wishesList');
   const metaEl = $('#wishesMeta');
