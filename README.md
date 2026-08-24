@@ -67,7 +67,7 @@ Endpoint `api.php`:
 
 ## Kustomisasi
 
-- **Preview WhatsApp/OG**: tag OG + Twitter Card di `index.html` memakai **domain produksi absolut** (`ourinviteyou.likesyou.org`, lihat `CNAME`) dan gambar khusus `assets/image/og-cover.jpg` (1200×630). Jika domain berubah, perbarui seluruh blok meta tersebut.
+- **Preview WhatsApp/OG**: tag OG + Twitter Card di `index.html` memakai **domain produksi absolut** (`ourinviteyou.likesyou.org`, lihat `CNAME`) dan gambar khusus `assets/image/og-cover.png` (1200×630). Jika domain berubah, perbarui seluruh blok meta tersebut.
 - **Tanggal**: hardcoded di banyak tempat — `CONFIG.dateISO` di `assets/js/main.js` (hanya countdown) plus tanggal terlihat di title/meta `index.html`, sampul, strip hero, marquee (2 span), kartu acara, dan URL Google Calendar tiap tombol "Simpan Kalender". Ubah **semuanya sekaligus**.
 - **Nama, venue, alamat**: edit langsung di `index.html` (+ `CONFIG.shareText`).
 - **Foto** di `assets/image/`, sudah terkompresi (sisi terpanjang ±2000px, q80, total ±3 MB). Semua foto kamera aslinya **potret** dengan EXIF orientation 8 — salinan web diregenerasi dengan `exif_transpose()`. Pengecualian `foto 2.jpeg` (latar sampul): piksel mentah diputar 90° searah jarum jam lalu dibalik vertikal secara manual (pilihan eksplisit, bukan arah EXIF), tampil B&W `object-fit: cover`. Original resolusi penuh ada di `/home/argabiyusyrf/foto-asli-undangan/` (di luar webroot — jangan di-deploy).
@@ -90,7 +90,7 @@ undangan/
 ├── assets/
 │   ├── css/style.css   # seluruh styling + animasi ambient
 │   ├── js/main.js      # logika, animasi GSAP, RSVP/wishes
-│   ├── image/          # foto terkompresi (+ og-cover.jpg utk preview WA)
+│   ├── image/          # foto terkompresi (+ og-cover.png utk preview WA)
 │   ├── fonts/          # woff2 self-hosted (2 preloaded)
 │   └── vendor/         # GSAP + ScrollTrigger (vanilla script)
 └── data/
