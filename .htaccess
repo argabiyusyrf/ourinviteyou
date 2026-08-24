@@ -11,6 +11,14 @@
 
 RewriteEngine On
 
+# -- 0a) Paksa HTTPS di production (abaikan localhost & IP lokal).
+#     Di lokal (http://localhost/undangan) tetap http://.
+#     Cek X-Forwarded-Proto supaya tak loop saat di balik proxy SSL.
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|::1)$ [NC]
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_X_FORWARDED_PROTO} !^https$ [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
 # -- 0) Blokir semua path bertitik (.git/, .htaccess, dsb.)
 RewriteRule (^|/)\. - [F]
 
