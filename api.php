@@ -26,7 +26,7 @@ const DATA_DIR  = __DIR__ . '/data';
 const DATA_FILE = DATA_DIR . '/undangan.json';
 const RATE_FILE = DATA_DIR . '/ratelimit.json';
 const KEY_FILE  = DATA_DIR . '/key.json';
-const ADMIN_KEY = 'isalyaya-2026-fd';
+const ADMIN_KEY = 'faisalanugrah344';
 
 /* ---------- sesi ---------- */
 
