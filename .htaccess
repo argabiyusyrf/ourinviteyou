@@ -45,7 +45,7 @@ Options -Indexes
 
 # Halaman HTML tidak di-cache browser agar edit langsung terlihat
 <IfModule mod_headers.c>
-  <FilesMatch "\.html?$">
+  <FilesMatch "\.(html?|css|js)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>

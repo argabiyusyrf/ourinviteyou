@@ -639,7 +639,7 @@ body.is-opened .docknav { transform: translate(-50%, 0); }
   gap: clamp(12px, 2.2vw, 20px);
   text-align: center;
 }
-.hero__script { font-size: clamp(1.8rem, 5.5vw, 3.3rem); padding-bottom: .18em; width: 100%; text-align: center; }
+.hero__script.rise-mask { display: block; width: 100%; font-size: clamp(1.8rem, 5.5vw, 3.3rem); padding-bottom: .18em; text-align: center; }
 .hero__names {
   font-family: var(--serif); font-weight: 500;
   font-size: clamp(2.9rem, 10.5vw, 6.3rem);
